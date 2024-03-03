@@ -17,17 +17,15 @@ export async function noConfigCaseQuickPick({
     resourceControl,
 }: NoConfigCaseQuickPickParams) {
     const commonState = commonWorkspaceState.getWorkspaceState();
-    const { createUri, createUnit8Array, createFolder, createFile } = resourceControl;
+    const { createFolder, createFile } = resourceControl;
 
     const noConfigPickOptions: NoConfigPickOption[] = [
         {
             label: 'make example folder structure',
             value: () => {
-                const folderPath = `${commonState.workSpace.uri.path}/exampleFolder`;
-                const filePath = `${folderPath}/Test.tsx`;
-                const fileContent = createUnit8Array(testContent);
-                const folderUri = createUri(`${commonState.workSpace.uri.path}/exampleFolder`);
-                const fileUri = createUri(filePath);
+                const folderUri = `${commonState.workSpace.uri.path}/exampleFolder`;
+                const fileUri = `${folderUri}/Test.tsx`;
+                const fileContent = testContent;
 
                 createFolder(folderUri);
                 createFile(fileUri, fileContent);

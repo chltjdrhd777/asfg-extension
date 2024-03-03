@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import { mkdirp } from 'mkdirp';
 
 export class ResourceControl {
     private vscodeFS = vscode.workspace.fs;
@@ -19,11 +20,15 @@ export class ResourceControl {
         return new Uint8Array(data);
     };
 
-    createFolder = (uri: vscode.Uri) => {
-        this.vscodeFS.createDirectory(uri);
+    createFolder = (uri: string) => {
+        // this.vscodeFS.createDirectory(uri);
+        mkdirp.sync(uri);
     };
 
-    createFile = (uri: vscode.Uri, content: Uint8Array) => {
-        this.vscodeFS.writeFile(uri, content);
+    createFile = (uri: string, content: string) => {
+        // this.vscodeFS.writeFile(uri, content);
+        if (!fs.existsSync(uri)) {
+            fs.writeFileSync(uri, content);
+        }
     };
 }
