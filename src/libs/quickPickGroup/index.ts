@@ -1,1 +1,5 @@
-export { noConfigCaseQuickPick } from './noConfigCaseQuickPick';
+import { noConfigCaseQuickPick } from './noConfigCaseQuickPick';
+
+export const quickPickGroup = {
+    noConfigCaseQuickPick,
+};

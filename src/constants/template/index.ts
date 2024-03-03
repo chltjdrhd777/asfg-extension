@@ -1,0 +1,1 @@
+export { testContent } from './exampleFolderStructure';

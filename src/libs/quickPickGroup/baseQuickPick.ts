@@ -1,20 +1,20 @@
 import * as vscode from 'vscode';
-import { QuickPickOption } from '../types';
+import { BaseQuickPickOption } from './types';
 
-interface QuickPickParams {
-    context: vscode.ExtensionContext;
-    optionItems: QuickPickOption[];
+interface QuickPickParams<OptionItems> {
+    optionItems: OptionItems;
 }
 
-export function baseQuickPick({ context, optionItems }: QuickPickParams) {
+export function baseQuickPick<OptionItems extends BaseQuickPickOption<any>[]>({
+    optionItems,
+}: QuickPickParams<OptionItems>) {
     const quickPick = vscode.window.createQuickPick();
     quickPick.items = optionItems;
     quickPick.onDidChangeSelection(selections => {
-        const selectedOption = selections[0] as QuickPickOption;
+        const selectedOption = selections[0] as OptionItems[number];
 
-        if (selectedOption) {
-            selectedOption.value({ context, quickPick });
-        }
+        selectedOption?.value();
+        quickPick.hide();
     });
     quickPick.onDidHide(() => quickPick.dispose());
     quickPick.show();

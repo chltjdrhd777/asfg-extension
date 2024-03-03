@@ -1,1 +1,2 @@
-export { Paths } from './paths';
+export { ResourceControl } from './resourceControl';
+export { WorkspaceState } from './workspaceState';
