@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
-import { ResourceControl, WorkspaceState } from './modules';
-import { workspaceEnums } from './constants/workspace';
-import { quickPickGroup } from './libs';
+import { ResourceControl } from './modules';
+import { quickPickGroup } from './services';
 import { CommonParams } from './types';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -11,19 +10,12 @@ export function activate(context: vscode.ExtensionContext) {
         const workspaceFolders = vscode.workspace.workspaceFolders;
 
         if (workspaceFolders) {
-            const workSpace = workspaceFolders[0];
-
-            const commonWorkspaceState = new WorkspaceState(
-                context,
-                workspaceEnums.commonState
-            ) as CommonParams['commonWorkspaceState'];
-            const resourceControl = new ResourceControl(workSpace);
-
-            commonWorkspaceState.setWorkspaceState({ workSpace });
+            const workspaceFolder = workspaceFolders[0];
+            const resourceControl = new ResourceControl(workspaceFolder);
 
             const commonParams: CommonParams = {
                 context,
-                commonWorkspaceState,
+                workspaceFolder,
                 resourceControl,
             };
 
@@ -39,7 +31,3 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(vscode.commands.registerCommand(commandName, commandHandler));
 }
-
-/**
- * helpers
- */

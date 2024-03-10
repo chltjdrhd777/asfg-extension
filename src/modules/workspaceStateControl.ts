@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-export class WorkspaceState<WorkspaceState> {
+export class WorkspaceStateControl<WorkspaceState> {
     constructor(private context: vscode.ExtensionContext, private stateKey: string) {}
 
     getWorkspaceState = () => {

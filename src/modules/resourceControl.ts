@@ -2,6 +2,9 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { mkdirp } from 'mkdirp';
+import * as utils from '../utils';
+
+// import {utils} from ''
 
 export class ResourceControl {
     private vscodeFS = vscode.workspace.fs;
@@ -18,6 +21,10 @@ export class ResourceControl {
 
     createUnit8Array = (data: any) => {
         return new Uint8Array(data);
+    };
+
+    getResourcePath = (paths: string | string[]) => {
+        return utils.getResourcePath(paths);
     };
 
     createFolder = (uri: string) => {

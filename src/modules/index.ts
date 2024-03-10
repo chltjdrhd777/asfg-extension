@@ -1,2 +1,2 @@
 export { ResourceControl } from './resourceControl';
-export { WorkspaceState } from './workspaceState';
+export { WorkspaceStateControl } from './workspaceStateControl';

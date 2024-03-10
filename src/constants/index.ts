@@ -1,1 +1,1 @@
-export { workspaceEnums } from './workspace';
+export * from './template';

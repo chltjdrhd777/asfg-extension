@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
-import { ResourceControl, WorkspaceState } from '../modules';
+import { ResourceControl } from '../modules';
 
 export interface CommonParams {
     context: vscode.ExtensionContext;
-    commonWorkspaceState: WorkspaceState<{ workSpace: vscode.WorkspaceFolder }>;
+    workspaceFolder: vscode.WorkspaceFolder;
     resourceControl: ResourceControl;
 }
