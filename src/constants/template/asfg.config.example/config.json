@@ -1,3 +1,21 @@
 {
-    "exampleComponent": { "structurePath": "./exampleComponent", "creatingPath": "./component" }
+    "exampleComponent": {
+        "source": "./exampleComponent",
+        "destination": "./components"
+    },
+    "exampleComponentWithNoSource": { "destination": "./components" },
+    "exampleComponentGroup": [
+        {
+            "source": "./exampleComponentGroup/components",
+            "destination": "./components"
+        },
+        {
+            "source": "./exampleComponentGroup/modules",
+            "destination": "./modules/depth1"
+        },
+        {
+            "source": "./exampleComponentGroup/libs",
+            "destination": "./libs/"
+        }
+    ]
 }

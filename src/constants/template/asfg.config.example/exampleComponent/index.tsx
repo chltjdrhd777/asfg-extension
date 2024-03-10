@@ -3,6 +3,6 @@ import React from 'react';
 /**
  * @description
  */
-export default function index() {
-    return <div>index</div>;
+export default function ExampleComponent() {
+    return <div>ExampleComponent</div>;
 }

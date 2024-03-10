@@ -4,14 +4,20 @@ import * as path from 'path';
 import { mkdirp } from 'mkdirp';
 import * as utils from '../utils';
 
-// import {utils} from ''
+interface CopryResourceParams {
+    source: string | URL;
+    destination: string | URL;
+    opts?: fs.CopyOptions;
+    callback?: (err: NodeJS.ErrnoException | null) => void;
+}
 
 export class ResourceControl {
     private vscodeFS = vscode.workspace.fs;
     constructor(private workspaceFolder: vscode.WorkspaceFolder) {}
 
-    isExistResource = (targetPath: string) => {
+    isResourceExistFromRoot = (targetPath: string) => {
         const resourcePath = path.join(this.workspaceFolder.uri.path, targetPath);
+        console.log('resource path is', resourcePath, fs.existsSync(resourcePath));
         return fs.existsSync(resourcePath);
     };
 
@@ -36,6 +42,33 @@ export class ResourceControl {
         // this.vscodeFS.writeFile(uri, content);
         if (!fs.existsSync(uri)) {
             fs.writeFileSync(uri, content);
+        } else {
+            console.log(`Already exist target file : ${uri}`);
+        }
+    };
+
+    copyResource = ({
+        source,
+        destination,
+        opts = { recursive: true },
+        callback = err => {
+            console.log('fail to copy resource', err);
+        },
+    }: CopryResourceParams) => {
+        fs.cp(source, destination, opts, callback);
+    };
+
+    insertContent = (
+        filePath: string,
+        scriptToInsert: string,
+        config?: { insertPosition: 'bottom' | number }
+    ) => {
+        try {
+            let data = fs.readFileSync(filePath, 'utf-8');
+            data += `\n${scriptToInsert}`;
+            fs.writeFileSync(filePath, data);
+        } catch (err) {
+            console.error('faile to insert file content');
         }
     };
 }
