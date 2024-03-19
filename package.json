@@ -9,6 +9,11 @@
     "categories": [
         "Other"
     ],
+    "license": "ISC",
+    "author": {
+        "name": "devAnderson",
+        "email": "chltjdrhd777@gmail.com"
+    },
     "activationEvents": [],
     "main": "./dist/extension.js",
     "contributes": {

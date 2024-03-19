@@ -40,6 +40,15 @@ export class ResourceControl {
         return utils.getResourcePath(paths);
     };
 
+    readResource = (path: string) => {
+        try {
+            const data = fs.readFileSync(path, 'utf8');
+            return data;
+        } catch (err) {
+            console.log('fail to read .gitignore');
+        }
+    };
+
     createFolder = (uri: string) => {
         // this.vscodeFS.createDirectory(uri);
         mkdirp.sync(uri);
@@ -75,7 +84,7 @@ export class ResourceControl {
     ) => {
         try {
             let data = fs.readFileSync(filePath, 'utf-8');
-            data += `\n${scriptToInsert}`;
+            data += `${scriptToInsert}`;
             fs.writeFileSync(filePath, data);
         } catch (err) {
             console.error('faile to insert file content');

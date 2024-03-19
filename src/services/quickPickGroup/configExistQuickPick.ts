@@ -14,7 +14,7 @@ interface ConfigExistPickOption {
 interface ConfigExistQuickPickParams extends CommonParams {}
 
 export async function configExistQuickPick(configExistQuickPickParams: ConfigExistQuickPickParams) {
-    const { workspaceFolder, resourceControl, commandHandlerArgs } = configExistQuickPickParams;
+    const { workspaceFolder, resourceControl } = configExistQuickPickParams;
     const { getResourcePath } = resourceControl;
 
     const workSpacePath = workspaceFolder.uri.path;

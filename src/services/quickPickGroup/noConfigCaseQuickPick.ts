@@ -26,6 +26,7 @@ export async function noConfigCaseQuickPick({
         copyResource,
         getResourcePath,
         insertContent,
+        readResource,
     } = resourceControl;
 
     const noConfigPickOptions: NoConfigPickOption[] = [
@@ -73,7 +74,11 @@ export async function noConfigCaseQuickPick({
                 if (!isResourceExistFromRoot('.gitignore')) {
                     createFile(gitignoreFilePath, contants.exampleGitignoreContent);
                 } else {
-                    insertContent(gitignoreFilePath, contants.exampleGitignoreContent);
+                    const gitignore = readResource(gitignoreFilePath);
+
+                    if (!gitignore?.includes('asfg.config')) {
+                        insertContent(gitignoreFilePath, contants.exampleGitignoreContent);
+                    }
                 }
 
                 vscode.window.showInformationMessage(
