@@ -46,9 +46,11 @@ If there is no "asfg.config" folder on the workspace root and when you input the
 If there is a **"asfg.config"** folder, it collects structure definitions from a "config.json" file inside **"asfg.config"** folder. It means the json key becomes a select menue. <br/>
 Here is an example result if you make config setting required.
 
-<img src="https://raw.githubusercontent.com/chltjdrhd777/image-hosting/main/asfg-config-json.png" width="703px" height="555px"/>
-<img src="https://raw.githubusercontent.com/chltjdrhd777/image-hosting/main/asfg-config-json2.png" width="703px" height="155px"/>
+<img src="https://raw.githubusercontent.com/chltjdrhd777/image-hosting/main/asfg-config-json3.png" width="703px" height="555px"/>
+<img src="https://raw.githubusercontent.com/chltjdrhd777/image-hosting/main/asfg-config-json4.png" width="703px" height="155px"/>
 
 <br/>
 
-As you expected, if you select the one, **"asfg.config"** will generate folder structure accoring to the definition you write in the config.json.
+As you expected, if you select the one, **"asfg"** will generate folder structure accoring to the definition you write in the config.json.
+
+> ⚠️ Note!<br/> _source_ and _destination_ are a relative path started from **"asfg.config"** folder. It means that **asfg** will find a source structure from "... asfg.config/{target source folder name}" and so is definition.

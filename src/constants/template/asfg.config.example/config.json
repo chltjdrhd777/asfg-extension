@@ -1,19 +1,19 @@
 {
-    "exampleComponent": {
-        "source": "./exampleComponent",
+    "singleGeneration": {
+        "source": "./signleGenerationExample",
         "destination": "../components"
     },
-    "exampleComponentGroup": [
+    "multiGeneration": [
         {
-            "source": "./exampleComponentGroup/components",
+            "source": "./multiGenerationExample/components",
             "destination": "../components/componentGroup"
         },
         {
-            "source": "./exampleComponentGroup/types",
+            "source": "./multiGenerationExample/types",
             "destination": "../types/depth1"
         },
         {
-            "source": "./exampleComponentGroup/utils",
+            "source": "./multiGenerationExample/utils",
             "destination": "../utils/depth1/depth2"
         }
     ]
