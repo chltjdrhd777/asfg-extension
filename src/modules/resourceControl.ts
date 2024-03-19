@@ -15,9 +15,16 @@ export class ResourceControl {
     private vscodeFS = vscode.workspace.fs;
     constructor(private workspaceFolder: vscode.WorkspaceFolder) {}
 
+    isResourceExist = (targetPath: string | string[]) => {
+        if (!Array.isArray(targetPath)) {
+            targetPath = [targetPath];
+        }
+
+        return fs.existsSync(path.join(...targetPath));
+    };
+
     isResourceExistFromRoot = (targetPath: string) => {
         const resourcePath = path.join(this.workspaceFolder.uri.path, targetPath);
-        console.log('resource path is', resourcePath, fs.existsSync(resourcePath));
         return fs.existsSync(resourcePath);
     };
 
@@ -52,7 +59,10 @@ export class ResourceControl {
         destination,
         opts = { recursive: true },
         callback = err => {
-            console.log('fail to copy resource', err);
+            if (err) {
+                console.log('error is', err);
+                vscode.window.showErrorMessage('unexpected failure for copying the resource');
+            }
         },
     }: CopryResourceParams) => {
         fs.cp(source, destination, opts, callback);

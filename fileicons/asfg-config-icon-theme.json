@@ -1,0 +1,11 @@
+{
+    "iconDefinitions": {
+        "_folder_asfg": {
+            "iconPath": "./icons/asfg-folder.svg"
+        }
+    },
+
+    "folderNames": {
+        "asfg.config": "_folder_asfg"
+    }
+}

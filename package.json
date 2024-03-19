@@ -15,7 +15,14 @@
         "commands": [
             {
                 "command": "asfg",
-                "title": "asfg"
+                "title": "asfg(auto structured folder generator)"
+            }
+        ],
+        "iconThemes": [
+            {
+                "id": "asfgConfigTheme",
+                "label": "ASFG Config Theme",
+                "path": "./fileicons/asfg-config-icon-theme.json"
             }
         ]
     },

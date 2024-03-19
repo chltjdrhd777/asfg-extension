@@ -22,7 +22,7 @@ export function activate(context: vscode.ExtensionContext) {
             if (!resourceControl.isResourceExistFromRoot('asfg.config')) {
                 quickPickGroup.noConfigCaseQuickPick(commonParams);
             } else {
-                console.log('exist');
+                quickPickGroup.configExistQuickPick(commonParams);
 
                 //todo
                 // 1. config 설정에 따라서 cp하는 로직을 작성해야 하는데 여기서 주의점

@@ -1,21 +1,20 @@
 {
     "exampleComponent": {
         "source": "./exampleComponent",
-        "destination": "./components"
+        "destination": "../components"
     },
-    "exampleComponentWithNoSource": { "destination": "./components" },
     "exampleComponentGroup": [
         {
             "source": "./exampleComponentGroup/components",
-            "destination": "./components"
+            "destination": "../components/componentGroup"
         },
         {
-            "source": "./exampleComponentGroup/modules",
-            "destination": "./modules/depth1"
+            "source": "./exampleComponentGroup/types",
+            "destination": "../types/depth1"
         },
         {
-            "source": "./exampleComponentGroup/libs",
-            "destination": "./libs/"
+            "source": "./exampleComponentGroup/utils",
+            "destination": "../utils/depth1/depth2"
         }
     ]
 }
