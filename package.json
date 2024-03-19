@@ -14,6 +14,7 @@
         "name": "devAnderson",
         "email": "chltjdrhd777@gmail.com"
     },
+    "repository": "https://github.com/chltjdrhd777/asfg-extension",
     "activationEvents": [],
     "main": "./dist/extension.js",
     "contributes": {
