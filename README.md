@@ -24,7 +24,8 @@ There are two cases you could meet when you use this extension.
 
 ---
 
-`case 1 : No asfg.config`
+#### `case 1 : No asfg.config`
+
 <br>
 
 <img src="https://raw.githubusercontent.com/chltjdrhd777/image-hosting/main/no-config-asfg.png" width="503px" height="155px"/>
@@ -41,7 +42,7 @@ If there is no "asfg.config" folder on the workspace root and when you input the
 
 ---
 
-`case 2 : asfg.config exists`
+#### `case 2 : asfg.config exists`
 
 If there is a **"asfg.config"** folder, it collects structure definitions from a "config.json" file inside **"asfg.config"** folder. It means the json key becomes a select menue. <br/>
 Here is an example result if you make config setting required.
@@ -54,3 +55,12 @@ Here is an example result if you make config setting required.
 As you expected, if you select the one, **"asfg"** will generate folder structure accoring to the definition you write in the config.json.
 
 > ⚠️ Note!<br/> _source_ and _destination_ are a relative path started from **"asfg.config"** folder. It means that **asfg** will find a source structure from "... asfg.config/{target source folder name}" and so is definition.
+
+---
+
+### `case 3 : Create structure starting from a particular folder`
+
+Maybe you hope to create your own structure not from root workspace but a folder you choose. If so, you can use **asfg context menu** by right click. <br/>
+The only thing you have to do is hover your cursor, right click, and click **asfg** context menu. Then **asfg** will open the select menu and if choose one, it generate structure based on the folder you choose.
+
+<img src="https://raw.githubusercontent.com/chltjdrhd777/image-hosting/main/asfg-config-rightclick.png" width="353px" height="155px"/>

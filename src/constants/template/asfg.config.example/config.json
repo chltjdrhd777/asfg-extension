@@ -6,7 +6,7 @@
     "multiGeneration": [
         {
             "source": "./multiGenerationExample/components",
-            "destination": "../components/componentGroup"
+            "destination": "../components"
         },
         {
             "source": "./multiGenerationExample/types",

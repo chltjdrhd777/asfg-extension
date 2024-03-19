@@ -15,9 +15,18 @@
         "commands": [
             {
                 "command": "asfg",
-                "title": "asfg(auto structured folder generator)"
+                "title": "asfg (auto structured folder generator)"
             }
         ],
+        "menus": {
+            "explorer/context": [
+                {
+                    "command": "asfg",
+                    "group": "navigation",
+                    "when": "explorerResourceIsFolder"
+                }
+            ]
+        },
         "iconThemes": [
             {
                 "id": "asfgConfigTheme",

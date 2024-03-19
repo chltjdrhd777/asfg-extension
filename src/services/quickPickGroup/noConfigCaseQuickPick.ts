@@ -77,7 +77,7 @@ export async function noConfigCaseQuickPick({
                 }
 
                 vscode.window.showInformationMessage(
-                    'the example asfg.config is created successfully',
+                    'the example asfg.config is created successfully'
                 );
             },
         },

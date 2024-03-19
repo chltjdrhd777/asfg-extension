@@ -14,7 +14,7 @@ interface ConfigExistPickOption {
 interface ConfigExistQuickPickParams extends CommonParams {}
 
 export async function configExistQuickPick(configExistQuickPickParams: ConfigExistQuickPickParams) {
-    const { workspaceFolder, resourceControl } = configExistQuickPickParams;
+    const { workspaceFolder, resourceControl, commandHandlerArgs } = configExistQuickPickParams;
     const { getResourcePath } = resourceControl;
 
     const workSpacePath = workspaceFolder.uri.path;
@@ -61,6 +61,7 @@ interface GenerateConfigBasedStructureParams extends ConfigExistQuickPickParams 
 const generateConfigBasedStructure = ({
     resourceControl,
     workspaceFolder,
+    commandHandlerArgs,
 
     label,
     jsonValue,
@@ -70,10 +71,14 @@ const generateConfigBasedStructure = ({
     const { source, destination } = jsonValue;
 
     const workSpacePath = workspaceFolder.uri.path;
+
     const configFolderPath = getResourcePath([workSpacePath, 'asfg.config']);
 
     const sourcePath = getResourcePath([configFolderPath, source]);
-    const destinationPath = getResourcePath([configFolderPath, destination]);
+    // 만약 commandHandlerArgs가 존재한다는건 => 우클릭을 통해서 command를 실행했다는 것 => 우클릭 폴더가 생성 기점이 되어야 한다.
+    const destinationPath = commandHandlerArgs
+        ? getResourcePath([commandHandlerArgs.path, utils.flatStartRelativePath(destination)])
+        : getResourcePath([configFolderPath, destination]);
 
     // execption 1. json에 source가 제대로 정의되어있지 않을 경우
     if (!isResourceExist(sourcePath)) {
@@ -88,6 +93,6 @@ const generateConfigBasedStructure = ({
     // 지정된 structure을 안에 정의
     copyResource({
         source: sourcePath,
-        destination: destinationPath ?? workSpacePath,
+        destination: destinationPath,
     });
 };
