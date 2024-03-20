@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 
 import { baseQuickPick } from './baseQuickPick';
 import { CommonParams } from '../../types';
@@ -25,9 +26,8 @@ export async function noConfigCaseQuickPick({
         readResource,
     } = resourceControl;
 
-    const contantsPath = context.asAbsolutePath('src/constants');
     const workSpacePath = workspaceFolder.uri.path;
-    const exampleResourceTemplatePath = getResourcePath([contantsPath, '/template']);
+    const exampleResourceTemplatePath = getResourcePath([__dirname, 'constants', 'template']);
 
     const noConfigPickOptions: NoConfigPickOption[] = [
         {
