@@ -71,9 +71,7 @@ const generateConfigBasedStructure = ({
     const { source, destination } = jsonValue;
 
     const workSpacePath = workspaceFolder.uri.path;
-
     const configFolderPath = getResourcePath([workSpacePath, 'asfg.config']);
-
     const sourcePath = getResourcePath([configFolderPath, source]);
     // 만약 commandHandlerArgs가 존재한다는건 => 우클릭을 통해서 command를 실행했다는 것 => 우클릭 폴더가 생성 기점이 되어야 한다.
     const destinationPath = commandHandlerArgs

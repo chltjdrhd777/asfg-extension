@@ -11,9 +11,6 @@ export function activate(context: vscode.ExtensionContext) {
 
         if (workspaceFolders) {
             const workspaceFolder = workspaceFolders[0];
-
-            console.log('workspacefolder is', workspaceFolder);
-
             const resourceControl = new ResourceControl(workspaceFolder);
 
             const commonParams: CommonParams = {

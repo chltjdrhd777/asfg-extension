@@ -45,7 +45,7 @@ export class ResourceControl {
             const data = fs.readFileSync(path, 'utf8');
             return data;
         } catch (err) {
-            console.log('fail to read .gitignore');
+            console.log('fail to read resource');
         }
     };
 

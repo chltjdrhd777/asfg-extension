@@ -15,10 +15,6 @@ export async function noConfigCaseQuickPick({
     workspaceFolder,
     resourceControl,
 }: NoConfigCaseQuickPickParams) {
-    const extensionPath = context.extensionPath;
-    const workSpacePath = workspaceFolder.uri.path;
-    const exampleResourceTemplatePath = 'src/constants/template';
-
     const {
         isResourceExistFromRoot,
         createFolder,
@@ -29,13 +25,16 @@ export async function noConfigCaseQuickPick({
         readResource,
     } = resourceControl;
 
+    const contantsPath = context.asAbsolutePath('src/constants');
+    const workSpacePath = workspaceFolder.uri.path;
+    const exampleResourceTemplatePath = getResourcePath([contantsPath, '/template']);
+
     const noConfigPickOptions: NoConfigPickOption[] = [
         {
             label: 'make example folder structure',
             value: () => {
                 const folderPath = getResourcePath([workSpacePath, 'exampleFolder']);
                 const exampleFolderStructureContentPath = getResourcePath([
-                    extensionPath,
                     exampleResourceTemplatePath,
                     'folderStructure.example',
                 ]);
@@ -59,7 +58,6 @@ export async function noConfigCaseQuickPick({
 
                 // 2. example file 복사
                 const exampleConfigStructurePath = getResourcePath([
-                    extensionPath,
                     exampleResourceTemplatePath,
                     'asfg.config.example',
                 ]);

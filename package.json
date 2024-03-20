@@ -2,8 +2,9 @@
     "name": "asfg",
     "displayName": "Auto Structured Folder Generator",
     "description": "Auto Structured Folder Generator",
+    "publisher": "dev-anderson",
     "icon": "fileicons/icons/asfg-icon.png",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "engines": {
         "vscode": "^1.87.0"
     },
@@ -18,6 +19,9 @@
     "repository": "https://github.com/chltjdrhd777/asfg-extension",
     "activationEvents": [],
     "main": "./dist/extension.js",
+    "files": [
+        "src/constants/*"
+    ],
     "contributes": {
         "commands": [
             {
