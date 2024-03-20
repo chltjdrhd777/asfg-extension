@@ -4,7 +4,7 @@
 
 ## ⭐ Introduction
 
-If you have a large number of folders that need to be created for frequent repetition or conventions, this extension can be useful to autocomplete folder structures and files based on predetermined settings.
+If you have a large number of folders that need to be created for frequent repetition or conventions, this extension can be useful to auto-completed folder structures and files based on pre-determined settings.
 
 ## ⭐ How to use
 

@@ -2,6 +2,7 @@
     "name": "asfg",
     "displayName": "Auto Structured Folder Generator",
     "description": "Auto Structured Folder Generator",
+    "icon": "fileicons/icons/asfg-icon.png",
     "version": "0.0.1",
     "engines": {
         "vscode": "^1.87.0"
@@ -32,14 +33,7 @@
                     "when": "explorerResourceIsFolder"
                 }
             ]
-        },
-        "iconThemes": [
-            {
-                "id": "asfgConfigTheme",
-                "label": "ASFG Config Theme",
-                "path": "./fileicons/asfg-config-icon-theme.json"
-            }
-        ]
+        }
     },
     "scripts": {
         "vscode:prepublish": "yarn run package",
