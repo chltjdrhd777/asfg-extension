@@ -26,22 +26,28 @@ export async function configExistQuickPick(configExistQuickPickParams: ConfigExi
         ([label, jsonValue]) => ({
             label,
             value: () => {
-                if (Array.isArray(jsonValue)) {
-                    const jsonValues = jsonValue;
+                try {
+                    if (Array.isArray(jsonValue)) {
+                        const jsonValues = jsonValue;
 
-                    jsonValues.map(_jsonValue =>
+                        jsonValues.map(_jsonValue =>
+                            generateConfigBasedStructure({
+                                label,
+                                jsonValue: _jsonValue,
+                                ...configExistQuickPickParams,
+                            })
+                        );
+                    } else {
                         generateConfigBasedStructure({
                             label,
-                            jsonValue: _jsonValue,
+                            jsonValue,
                             ...configExistQuickPickParams,
-                        })
-                    );
-                } else {
-                    generateConfigBasedStructure({
-                        label,
-                        jsonValue,
-                        ...configExistQuickPickParams,
-                    });
+                        });
+                    }
+
+                    vscode.window.showInformationMessage(`success to create ${label} structure`);
+                } catch (err) {
+                    vscode.window.showErrorMessage('failed to create structure');
                 }
             },
         })

@@ -16,5 +16,9 @@
             "source": "./multiGenerationExample/utils",
             "destination": "../utils/depth1/depth2"
         }
-    ]
+    ],
+    "networkStructureExample": {
+        "source": "./networkStructureExample",
+        "destination": "../network"
+    }
 }

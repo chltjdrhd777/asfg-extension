@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
 
 import { baseQuickPick } from './baseQuickPick';
 import { CommonParams } from '../../types';
@@ -12,7 +11,6 @@ interface NoConfigPickOption {
 interface NoConfigCaseQuickPickParams extends CommonParams {}
 
 export async function noConfigCaseQuickPick({
-    context,
     workspaceFolder,
     resourceControl,
 }: NoConfigCaseQuickPickParams) {
@@ -27,6 +25,7 @@ export async function noConfigCaseQuickPick({
     } = resourceControl;
 
     const workSpacePath = workspaceFolder.uri.path;
+    //! note : __dirname = dist
     const exampleResourceTemplatePath = getResourcePath([__dirname, 'constants', 'template']);
 
     const noConfigPickOptions: NoConfigPickOption[] = [
@@ -61,6 +60,7 @@ export async function noConfigCaseQuickPick({
                     exampleResourceTemplatePath,
                     'asfg.config.example',
                 ]);
+
                 copyResource({
                     source: exampleConfigStructurePath,
                     destination: asfgConfigFolderPath,

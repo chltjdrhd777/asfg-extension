@@ -8,9 +8,19 @@ If you have a large number of folders that need to be created for frequent repet
 
 ## ⭐ How to use
 
+`1. Generate from command palette`
+
 ```
 1. cmd + shift + p
 2. input 'asfg' and press 'enter'
+3. select structure you want to make
+```
+
+`2. Generate from specific folder`
+
+```
+1. right click on a target folder
+2. click asfg context menu
 3. select structure you want to make
 ```
 
