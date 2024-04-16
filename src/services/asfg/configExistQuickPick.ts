@@ -5,7 +5,6 @@ import { BaseParams } from '../../types';
 
 import * as utils from '../../utils';
 import * as types from '../../types';
-import { CopryResourceParams } from '../../modules/resourceControl';
 
 interface ConfigExistPickOption {
     label: string;
@@ -25,11 +24,13 @@ export async function configExistQuickPick(configExistQuickPickParams: ConfigExi
     const configJsonPath = getResourcePath([configFolderPath, 'config.json']);
     const configJsonData = utils.readConfigJson(configJsonPath);
     const createConfigStructure = (label: string, jsonValue: types.JsonValue) => {
-        createStructure({
+        const createStructureParams = {
             label,
             jsonValue,
             ...configExistQuickPickParams,
-        });
+        };
+
+        jsonValue.placeholder ? hanldePlaceholder(createStructureParams) : createStructure(createStructureParams);
     };
 
     const configExistPickOptions: ConfigExistPickOption[] = Object.entries(configJsonData).map(
@@ -40,8 +41,6 @@ export async function configExistQuickPick(configExistQuickPickParams: ConfigExi
                     Array.isArray(jsonValue) // 다중생성구조일 경우,
                         ? jsonValue.forEach(_jsonValue => createConfigStructure(label, _jsonValue))
                         : createConfigStructure(label, jsonValue);
-
-                    window.showInformationMessage(`success to create ${label} structure`);
                 } catch (err) {
                     window.showErrorMessage('failed to create structure');
                 }
@@ -61,16 +60,16 @@ interface CreateStructureParams extends ConfigExistQuickPickParams {
     jsonValue: types.JsonValue;
 }
 const createStructure = ({
+    label,
+    jsonValue,
+
     resourceControl,
     workspaceFolder,
     commandHandlerArgs,
-
-    label,
-    jsonValue,
 }: CreateStructureParams) => {
     const { isResourceExist, createFolder, copyResource, getResourcePath } = resourceControl;
 
-    const { source, destination, placeholder } = jsonValue;
+    const { source, destination } = jsonValue;
 
     const workSpacePath = workspaceFolder.uri.path;
     const configFolderPath = getResourcePath([workSpacePath, 'asfg.config']);
@@ -89,30 +88,30 @@ const createStructure = ({
         createFolder(destinationPath);
     }
 
-    const commonParams = {
+    copyResource({
         source: sourcePath,
         destination: destinationPath,
-    };
+    });
 
-    if (placeholder) {
-        hanldePlaceholder(commonParams);
-    } else {
-        copyResource(commonParams);
-    }
+    window.showInformationMessage(`success to create ${label} structure`);
 };
 
 /**
  * @helpers
  */
 
-function hanldePlaceholder(commonParams: Omit<CopryResourceParams, 'opts' | 'callback'>) {
+function hanldePlaceholder(createStructureParams: CreateStructureParams) {
     const input = window.createInputBox();
-    input.placeholder = 'input the name of snippet';
-    input.validationMessage = 'please input valid text';
+    input.placeholder = 'input the replace value for placeholder';
     input.onDidAccept(() => {
         const inputValue = input.value;
-        console.log(inputValue);
-        input.hide();
+
+        if (inputValue.trim() === '') {
+            window.showErrorMessage('Please enter a valid value!');
+        } else {
+            console.log(inputValue);
+            input.hide();
+        }
     });
     input.onDidHide(() => input.dispose());
     input.show();
@@ -121,3 +120,33 @@ function hanldePlaceholder(commonParams: Omit<CopryResourceParams, 'opts' | 'cal
     // 3. 내부에 ~.확장자이름.txt로 되어있는 파일을 찾으면
     // 4. 그 안에 있는 텍스트 내용 중, $placeholder라고 되어있는 텍스트를 찾아서 input값으로 변경시킨 후
 }
+
+//1. copyresource
+//2. 이후 변경로직
+
+// async function processFolder(folderPath, inputText, destinationPath) {
+//     const files = fs.readdirSync(folderPath);
+//     for (const file of files) {
+//         const filePath = path.join(folderPath, file);
+//         const stats = fs.statSync(filePath);
+//         if (stats.isDirectory()) {
+//             // 재귀적으로 폴더 처리
+//             await processFolder(filePath, inputText, destinationPath);
+//         } else {
+//             // 파일 처리
+//             await processFile(filePath, inputText, destinationPath);
+//         }
+//     }
+// }
+
+// async function processFile(filePath, inputText, destinationPath) {
+//     const fileName = path.basename(filePath);
+//     const extension = path.extname(fileName);
+//     if (extension === '.txt') {
+//         const fileContent = fs.readFileSync(filePath, 'utf8');
+//         const replacedContent = fileContent.replace(/\$placeholder/g, inputText);
+//         const newFileName = fileName.replace('.txt', '');
+//         const newFilePath = path.join(destinationPath, newFileName);
+//         fs.writeFileSync(newFilePath, replacedContent);
+//     }
+// }
