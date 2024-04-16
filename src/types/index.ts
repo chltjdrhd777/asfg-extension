@@ -28,6 +28,7 @@ export interface BaseParams {
 export interface JsonValue {
     source: string;
     destination: string;
+    placeholder?: boolean;
 }
 
 export interface ConfigJsonData {

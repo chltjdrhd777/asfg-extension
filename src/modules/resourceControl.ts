@@ -4,7 +4,7 @@ import * as path from 'path';
 import { mkdirp } from 'mkdirp';
 import * as utils from '../utils';
 
-interface CopryResourceParams {
+export interface CopryResourceParams {
     source: string | URL;
     destination: string | URL;
     opts?: fs.CopyOptions;
