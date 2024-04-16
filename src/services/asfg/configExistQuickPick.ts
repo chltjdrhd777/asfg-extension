@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 
 import { baseQuickPick } from './baseQuickPick';
-import { CommonParams } from '../../types';
+import { BaseParams } from '../../types';
 
 import * as utils from '../../utils';
 import * as types from '../../types';
@@ -11,11 +11,13 @@ interface ConfigExistPickOption {
     value: () => void;
 }
 
-interface ConfigExistQuickPickParams extends CommonParams {}
+interface ConfigExistQuickPickParams extends BaseParams {}
 
 export async function configExistQuickPick(configExistQuickPickParams: ConfigExistQuickPickParams) {
-    const { workspaceFolder, resourceControl } = configExistQuickPickParams;
-    const { getResourcePath } = resourceControl;
+    const {
+        workspaceFolder,
+        resourceControl: { getResourcePath },
+    } = configExistQuickPickParams;
 
     const workSpacePath = workspaceFolder.uri.path;
     const configFolderPath = getResourcePath([workSpacePath, 'asfg.config']);
@@ -27,6 +29,7 @@ export async function configExistQuickPick(configExistQuickPickParams: ConfigExi
             label,
             value: () => {
                 try {
+                    // 1. 만약 config value가 다중 생성(여러 폴더에 구조 생성)일 경우(배열)
                     if (Array.isArray(jsonValue)) {
                         const jsonValues = jsonValue;
 
@@ -38,6 +41,7 @@ export async function configExistQuickPick(configExistQuickPickParams: ConfigExi
                             })
                         );
                     } else {
+                        //2. 그 외 = config value는 단일 생성으로 되어있을 경우(x 배열)
                         generateConfigBasedStructure({
                             label,
                             jsonValue,
@@ -79,6 +83,7 @@ const generateConfigBasedStructure = ({
     const workSpacePath = workspaceFolder.uri.path;
     const configFolderPath = getResourcePath([workSpacePath, 'asfg.config']);
     const sourcePath = getResourcePath([configFolderPath, source]);
+
     // 만약 commandHandlerArgs가 존재한다는건 => 우클릭을 통해서 command를 실행했다는 것 => 우클릭 폴더가 생성 기점이 되어야 한다.
     const destinationPath = commandHandlerArgs
         ? getResourcePath([commandHandlerArgs.path, utils.flatStartRelativePath(destination)])

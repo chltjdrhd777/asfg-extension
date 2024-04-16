@@ -1,34 +1,49 @@
 import * as vscode from 'vscode';
 import { ResourceControl } from './modules';
-import { quickPickGroup } from './services';
-import { CommonParams, CommandHandlerArgs } from './types';
+import { asfgQuickPick, snippet } from './services';
+import { BaseParams, CommandHandlerArgs } from './types';
 
 export function activate(context: vscode.ExtensionContext) {
-    const commandName = 'asfg';
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (!workspaceFolders) {
+        return vscode.window.showErrorMessage('please open your workspace first');
+    }
+    const workspaceFolder = workspaceFolders[0];
+    const resourceControl = new ResourceControl(workspaceFolder);
 
-    const commandHandler = (commandHandlerArgs?: CommandHandlerArgs) => {
-        const workspaceFolders = vscode.workspace.workspaceFolders;
-
-        if (workspaceFolders) {
-            const workspaceFolder = workspaceFolders[0];
-            const resourceControl = new ResourceControl(workspaceFolder);
-
-            const commonParams: CommonParams = {
-                context,
-                workspaceFolder,
-                resourceControl,
-                commandHandlerArgs,
-            };
-
-            if (!resourceControl.isResourceExistFromRoot('asfg.config')) {
-                quickPickGroup.noConfigCaseQuickPick(commonParams);
-            } else {
-                quickPickGroup.configExistQuickPick(commonParams);
-            }
-        } else {
-            vscode.window.showErrorMessage('please open your workspace first');
-        }
+    const baseParams: Omit<BaseParams, 'commandHandlerArgs'> = {
+        context,
+        workspaceFolder,
+        resourceControl,
     };
 
-    context.subscriptions.push(vscode.commands.registerCommand(commandName, commandHandler));
+    context.subscriptions.push(vscode.commands.registerCommand('asfg', getAsfgHandler(baseParams)));
+    context.subscriptions.push(vscode.commands.registerCommand('snippet', getSnippetHandler(baseParams)));
+}
+
+/**
+ * @helpers
+ */
+
+function getAsfgHandler(baseParams: BaseParams) {
+    return (commandHandlerArgs?: CommandHandlerArgs) => {
+        const { resourceControl } = baseParams;
+        const _commonParams = { commandHandlerArgs, ...baseParams };
+
+        if (!resourceControl?.isResourceExistFromRoot('asfg.config')) {
+            asfgQuickPick.noConfigCaseQuickPick(_commonParams);
+        } else {
+            asfgQuickPick.configExistQuickPick(_commonParams);
+        }
+    };
+}
+
+function getSnippetHandler(baseParams: BaseParams) {
+    return () => {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+            const _commonParams = { editor, ...baseParams };
+            snippet.createSnippetInput(_commonParams);
+        }
+    };
 }

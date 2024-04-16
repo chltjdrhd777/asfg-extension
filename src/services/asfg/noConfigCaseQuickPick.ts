@@ -1,14 +1,14 @@
 import * as vscode from 'vscode';
 
 import { baseQuickPick } from './baseQuickPick';
-import { CommonParams } from '../../types';
+import { BaseParams } from '../../types';
 import * as contants from '../../constants';
 
 interface NoConfigPickOption {
     label: string;
     value: () => void;
 }
-interface NoConfigCaseQuickPickParams extends CommonParams {}
+interface NoConfigCaseQuickPickParams extends BaseParams {}
 
 export async function noConfigCaseQuickPick({
     workspaceFolder,

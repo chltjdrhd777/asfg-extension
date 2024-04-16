@@ -77,11 +77,7 @@ export class ResourceControl {
         fs.cp(source, destination, opts, callback);
     };
 
-    insertContent = (
-        filePath: string,
-        scriptToInsert: string,
-        config?: { insertPosition: 'bottom' | number }
-    ) => {
+    insertContent = (filePath: string, scriptToInsert: string, config?: { insertPosition: 'bottom' | number }) => {
         try {
             let data = fs.readFileSync(filePath, 'utf-8');
             data += `${scriptToInsert}`;

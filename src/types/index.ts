@@ -15,7 +15,7 @@ export interface CommandHandlerArgs {
     _fsPath: string;
 }
 
-export interface CommonParams {
+export interface BaseParams {
     context: vscode.ExtensionContext;
     workspaceFolder: vscode.WorkspaceFolder;
     resourceControl: ResourceControl;
