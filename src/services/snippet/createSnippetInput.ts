@@ -1,5 +1,6 @@
 import { TextEditor, window } from 'vscode';
 import { BaseParams } from '../../types';
+import { exec } from 'child_process';
 
 interface CreateSnippetInputParams extends BaseParams {
     editor: TextEditor;
@@ -8,48 +9,43 @@ export async function createSnippetInput(createSnippetInputParams: CreateSnippet
     const {
         editor,
         workspaceFolder,
-        resourceControl: { getResourcePath, createFolder, createFile, isResourceExist },
+        resourceControl: { getResourcePath, createFile, isResourceExist, readResource, writeResource },
     } = createSnippetInputParams;
 
     const workSpacePath = workspaceFolder.uri.path;
-    const snippetFolderPath = getResourcePath([workSpacePath, 'asfg.config', '_snippets']);
+    const snippetsJsonPath = getResourcePath([workSpacePath, 'asfg.config', 'snippets.json']);
 
     const input = window.createInputBox();
     input.placeholder = 'input the name of snippet';
     input.onDidAccept(() => {
         const inputValue = input.value;
 
-        //1. check _snippets folder existence
-        const isSnippetFolderExist = isResourceExist(snippetFolderPath);
-        if (!isSnippetFolderExist) {
-            createFolder(snippetFolderPath);
+        //1. check snippets.json existence
+        const isSnippetsJsonExist = isResourceExist(snippetsJsonPath);
+        if (!isSnippetsJsonExist) {
+            createFile(snippetsJsonPath, '{}');
         }
 
-        //2. check snippet json file existence
-        const snippetJsonPath = getResourcePath([snippetFolderPath, `${inputValue}.json`]);
-        const isSnippetJsonExist = isResourceExist(snippetJsonPath);
-        if (isSnippetJsonExist) {
+        //2. read snippets json and check whether the snippet name is registered
+        const resourceContent = readResource(snippetsJsonPath) as string;
+        const prevContent = JSON.parse(resourceContent ?? {});
+        const isExistSnippetName = Object.keys(prevContent).find(snippetName => snippetName === inputValue);
+        if (isExistSnippetName) {
             return window.showErrorMessage('😭 Already exist snippet. Please try another name');
         }
 
-        //3. create snippet json file
+        //3. create snippet
         const selection = editor.selection;
         const selectedText = editor.document.getText(selection);
-        createFile(
-            snippetJsonPath,
-            JSON.stringify({
-                name: inputValue,
-                body: selectedText,
-            })
-        );
+        const newContent = { ...prevContent, [inputValue]: { body: selectedText } };
 
+        writeResource(snippetsJsonPath, JSON.stringify(newContent));
+        exec(`npx prettier --write ${snippetsJsonPath}`);
         window.showInformationMessage('🎉 your snippet is registered');
         input.hide();
     });
     input.onDidHide(() => input.dispose());
     input.show();
-
-    //4. 만약 없다면, 입력된 이름으로 된 json 파일 생성 후, {name:입력이름, body:복사된 내용} 의 형태로 생성시킨다.
 }
 
 /**

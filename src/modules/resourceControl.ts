@@ -49,6 +49,14 @@ export class ResourceControl {
         }
     };
 
+    writeResource = (path: string, content: string) => {
+        try {
+            fs.writeFileSync(path, content);
+        } catch (err) {
+            console.log('fail to write resource');
+        }
+    };
+
     createFolder = (uri: string) => {
         // this.vscodeFS.createDirectory(uri);
         mkdirp.sync(uri);
