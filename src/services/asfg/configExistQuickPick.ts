@@ -17,6 +17,7 @@ export async function configExistQuickPick(configExistQuickPickParams: ConfigExi
     const {
         workspaceFolder,
         resourceControl: { getResourcePath },
+        messageControl: { showMessage, showTimedMessage },
     } = configExistQuickPickParams;
 
     const workSpacePath = workspaceFolder.uri.path;
@@ -49,9 +50,9 @@ export async function configExistQuickPick(configExistQuickPickParams: ConfigExi
                         });
                     }
 
-                    vscode.window.showInformationMessage(`success to create ${label} structure`);
+                    showTimedMessage({ message: `🎉 success to create ${label} structure` });
                 } catch (err) {
-                    vscode.window.showErrorMessage('failed to create structure');
+                    showMessage({ type: 'error', message: '😭 failed to create structure' });
                 }
             },
         })
@@ -69,15 +70,14 @@ interface GenerateConfigBasedStructureParams extends ConfigExistQuickPickParams 
     jsonValue: types.JsonValue;
 }
 const generateConfigBasedStructure = ({
-    resourceControl,
+    resourceControl: { isResourceExist, createFolder, copyResource, getResourcePath },
+    messageControl: { showMessage },
     workspaceFolder,
     commandHandlerArgs,
 
     label,
     jsonValue,
 }: GenerateConfigBasedStructureParams) => {
-    const { isResourceExist, createFolder, copyResource, getResourcePath } = resourceControl;
-
     const { source, destination } = jsonValue;
 
     const workSpacePath = workspaceFolder.uri.path;
@@ -91,7 +91,7 @@ const generateConfigBasedStructure = ({
 
     // execption 1. json에 source가 제대로 정의되어있지 않을 경우
     if (!isResourceExist(sourcePath)) {
-        throw vscode.window.showErrorMessage(`no source exist for ${label}`);
+        throw showMessage({ type: 'error', message: `😭 no source exist for ${label}` });
     }
 
     // exception 2. json에 destination의 폴더 경로가 제대로 생성되어 있지 않을 경우

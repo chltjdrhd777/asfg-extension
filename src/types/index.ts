@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { ResourceControl } from '../modules';
+import { MessageControl } from '../modules/messageControl';
 
 /**
  * @CommonTypes
@@ -19,6 +20,7 @@ export interface BaseParams {
     context: vscode.ExtensionContext;
     workspaceFolder: vscode.WorkspaceFolder;
     resourceControl: ResourceControl;
+    messageControl: MessageControl;
     commandHandlerArgs?: CommandHandlerArgs;
 }
 

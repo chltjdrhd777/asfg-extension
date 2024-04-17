@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { ResourceControl } from './modules';
 import { asfgQuickPick, snippet } from './services';
 import { BaseParams, CommandHandlerArgs } from './types';
+import { MessageControl } from './modules/messageControl';
 
 export function activate(context: vscode.ExtensionContext) {
     const workspaceFolders = vscode.workspace.workspaceFolders;
@@ -9,12 +10,14 @@ export function activate(context: vscode.ExtensionContext) {
         return vscode.window.showErrorMessage('please open your workspace first');
     }
     const workspaceFolder = workspaceFolders[0];
-    const resourceControl = new ResourceControl(workspaceFolder);
+    const messageControl = new MessageControl();
+    const resourceControl = new ResourceControl(workspaceFolder, messageControl);
 
     const baseParams: Omit<BaseParams, 'commandHandlerArgs'> = {
         context,
         workspaceFolder,
         resourceControl,
+        messageControl,
     };
 
     context.subscriptions.push(vscode.commands.registerCommand('asfg', getAsfgHandler(baseParams)));

@@ -10,6 +10,7 @@ export async function createSnippetInput(createSnippetInputParams: CreateSnippet
         editor,
         workspaceFolder,
         resourceControl: { getResourcePath, createFile, isResourceExist, readResource, writeResource },
+        messageControl: { showMessage, showTimedMessage },
     } = createSnippetInputParams;
 
     const workSpacePath = workspaceFolder.uri.path;
@@ -31,7 +32,7 @@ export async function createSnippetInput(createSnippetInputParams: CreateSnippet
         const prevContent = JSON.parse(resourceContent ?? {});
         const isExistSnippetName = Object.keys(prevContent).find(snippetName => snippetName === inputValue);
         if (isExistSnippetName) {
-            return window.showErrorMessage('😭 Already exist snippet. Please try another name');
+            return showMessage({ type: 'error', message: '😭 Already exist snippet. Please try another name' });
         }
 
         //3. create snippet
@@ -41,15 +42,9 @@ export async function createSnippetInput(createSnippetInputParams: CreateSnippet
 
         writeResource(snippetsJsonPath, JSON.stringify(newContent));
         exec(`npx prettier --write ${snippetsJsonPath}`);
-        window.showInformationMessage('🎉 your snippet is registered');
+        showTimedMessage({ message: '🎉 your snippet is registered' });
         input.hide();
     });
     input.onDidHide(() => input.dispose());
     input.show();
 }
-
-/**
- * @helpers
- */
-
-function check() {}

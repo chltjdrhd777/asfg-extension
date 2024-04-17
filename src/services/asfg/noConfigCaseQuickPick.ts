@@ -12,9 +12,7 @@ interface NoConfigCaseQuickPickParams extends BaseParams {}
 
 export async function noConfigCaseQuickPick({
     workspaceFolder,
-    resourceControl,
-}: NoConfigCaseQuickPickParams) {
-    const {
+    resourceControl: {
         isResourceExistFromRoot,
         createFolder,
         createFile,
@@ -22,8 +20,9 @@ export async function noConfigCaseQuickPick({
         getResourcePath,
         insertContent,
         readResource,
-    } = resourceControl;
-
+    },
+    messageControl: { showTimedMessage },
+}: NoConfigCaseQuickPickParams) {
     const workSpacePath = workspaceFolder.uri.path;
     //! note : __dirname = dist
     const exampleResourceTemplatePath = getResourcePath([__dirname, 'constants', 'template']);
@@ -45,7 +44,7 @@ export async function noConfigCaseQuickPick({
                     destination: folderPath,
                 });
 
-                vscode.window.showInformationMessage('the example folder is created successfully');
+                showTimedMessage({ message: '🎉 the example folder is created successfully' });
             },
         },
         {
@@ -79,9 +78,7 @@ export async function noConfigCaseQuickPick({
                     }
                 }
 
-                vscode.window.showInformationMessage(
-                    'the example asfg.config is created successfully'
-                );
+                showTimedMessage({ message: '🎉 the example asfg.config is created successfully' });
             },
         },
     ];

@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { mkdirp } from 'mkdirp';
 import * as utils from '../utils';
+import { MessageControl } from './messageControl';
 
 interface CopryResourceParams {
     source: string | URL;
@@ -13,7 +14,7 @@ interface CopryResourceParams {
 
 export class ResourceControl {
     private vscodeFS = vscode.workspace.fs;
-    constructor(private workspaceFolder: vscode.WorkspaceFolder) {}
+    constructor(private workspaceFolder: vscode.WorkspaceFolder, private messageControl: MessageControl) {}
 
     isResourceExist = (targetPath: string | string[]) => {
         if (!Array.isArray(targetPath)) {
@@ -78,7 +79,11 @@ export class ResourceControl {
         callback = err => {
             if (err) {
                 console.log('error is', err);
-                vscode.window.showErrorMessage('unexpected failure for copying the resource');
+
+                this.messageControl.showMessage({
+                    type: 'error',
+                    message: '😭 unexpected failure for copying the resource',
+                });
             }
         },
     }: CopryResourceParams) => {
