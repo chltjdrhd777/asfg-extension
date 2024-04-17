@@ -1,2 +1,2 @@
-export { createSnippetInput } from './createSnippetInput';
+export { registerSnippetInput } from './registerSinppetInput';
 export { applySnippetQuickPick } from './applySnippetQuickPick';

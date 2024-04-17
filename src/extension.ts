@@ -54,7 +54,7 @@ function getRegisterSnippetHandler(baseParams: BaseParams) {
         const editor = vscode.window.activeTextEditor;
         if (editor) {
             const _commonParams = { editor, ...baseParams };
-            snippet.createSnippetInput(_commonParams);
+            snippet.registerSnippetInput(_commonParams);
         }
     };
 }

@@ -14,13 +14,18 @@ interface ConfigExistQuickPickParams extends BaseParams {}
 export async function configExistQuickPick(configExistQuickPickParams: ConfigExistQuickPickParams) {
     const {
         workspaceFolder,
-        resourceControl: { getResourcePath },
+        resourceControl: { getResourcePath, isResourceExist },
         messageControl: { showMessage, showTimedMessage },
     } = configExistQuickPickParams;
 
     const workSpacePath = workspaceFolder.uri.path;
     const configFolderPath = getResourcePath([workSpacePath, 'asfg.config']);
     const configJsonPath = getResourcePath([configFolderPath, 'config.json']);
+
+    // 만약 config.json이 없을 경우
+    if (!isResourceExist(configJsonPath)) {
+        return showMessage({ type: 'error', message: '😭 No config.json was detected' });
+    }
 
     const configJsonData = utils.readConfigJson<ASFGJsonValue | ASFGJsonValue[]>(configJsonPath);
     const configExistPickOptions: ConfigExistPickOption[] = Object.entries(configJsonData).map(
@@ -67,16 +72,22 @@ interface GenerateConfigBasedStructureParams extends ConfigExistQuickPickParams 
     label: string;
     jsonValue: ASFGJsonValue;
 }
-const generateConfigBasedStructure = ({
-    resourceControl: { isResourceExist, createFolder, copyResource, getResourcePath },
-    messageControl: { showMessage },
-    workspaceFolder,
-    commandHandlerArgs,
+const generateConfigBasedStructure = (generateConfigBasedStructureParams: GenerateConfigBasedStructureParams) => {
+    const {
+        resourceControl: { isResourceExist, createFolder, copyResource, getResourcePath },
+        messageControl: { showMessage, showTimedMessage },
+        workspaceFolder,
+        commandHandlerArgs,
 
-    label,
-    jsonValue,
-}: GenerateConfigBasedStructureParams) => {
+        label,
+        jsonValue,
+    } = generateConfigBasedStructureParams;
     const { source, destination } = jsonValue;
+
+    // exception 0. json의 형태가 잘못되어 있을 경우
+    if (!source || !destination) {
+        return showMessage({ type: 'error', message: `😭 Not valid config.json foramt. please follow the tutorial` });
+    }
 
     const workSpacePath = workspaceFolder.uri.path;
     const configFolderPath = getResourcePath([workSpacePath, 'asfg.config']);
@@ -89,7 +100,7 @@ const generateConfigBasedStructure = ({
 
     // execption 1. json에 source가 제대로 정의되어있지 않을 경우
     if (!isResourceExist(sourcePath)) {
-        throw showMessage({ type: 'error', message: `😭 no source exist for ${label}` });
+        return showMessage({ type: 'error', message: `😭 no source exist for ${label}` });
     }
 
     // exception 2. json에 destination의 폴더 경로가 제대로 생성되어 있지 않을 경우

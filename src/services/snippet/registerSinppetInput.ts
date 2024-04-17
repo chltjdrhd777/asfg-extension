@@ -1,37 +1,44 @@
 import { TextEditor, window } from 'vscode';
 import { BaseParams } from '../../types';
 import { exec } from 'child_process';
+import { createASFGConfigFolder } from '../asfg';
 
-interface CreateSnippetInputParams extends BaseParams {
+interface RegisterSinppetInputParams extends BaseParams {
     editor: TextEditor;
 }
-export async function createSnippetInput(createSnippetInputParams: CreateSnippetInputParams) {
+export async function registerSnippetInput(registerSinppetInputParams: RegisterSinppetInputParams) {
     const {
         editor,
         workspaceFolder,
-        resourceControl: { getResourcePath, createFile, isResourceExist, readResource, writeResource },
+        resourceControl: { getResourcePath, createFile, createFolder, isResourceExist, readResource, writeResource },
         messageControl: { showMessage, showTimedMessage },
-    } = createSnippetInputParams;
+    } = registerSinppetInputParams;
 
     const workSpacePath = workspaceFolder.uri.path;
-    const snippetsJsonPath = getResourcePath([workSpacePath, 'asfg.config', 'snippets.json']);
+    const configFolderPath = getResourcePath([workSpacePath, 'asfg.config']);
+    const snippetsJsonPath = getResourcePath([configFolderPath, 'snippets.json']);
 
     const input = window.createInputBox();
     input.placeholder = 'input the name of snippet';
     input.onDidAccept(() => {
         const inputValue = input.value;
 
+        //0. check config folder
+        if (!isResourceExist(configFolderPath)) {
+            createASFGConfigFolder({ ...registerSinppetInputParams, logging: false });
+            createFile(snippetsJsonPath, '{}');
+        }
+
         //1. check snippets.json existence
-        const isSnippetsJsonExist = isResourceExist(snippetsJsonPath);
-        if (!isSnippetsJsonExist) {
+        if (!isResourceExist(snippetsJsonPath)) {
             createFile(snippetsJsonPath, '{}');
         }
 
         //2. read snippets json and check whether the snippet name is registered
-        const resourceContent = readResource(snippetsJsonPath) as string;
-        const prevContent = JSON.parse(resourceContent ?? {});
-        const isExistSnippetName = Object.keys(prevContent).find(snippetName => snippetName === inputValue);
-        if (isExistSnippetName) {
+        const resource = readResource(snippetsJsonPath) as string;
+        const prevContent = JSON.parse(resource ?? {});
+        const isAlreadyExistSnippetName = Object.keys(prevContent).find(snippetName => snippetName === inputValue);
+        if (isAlreadyExistSnippetName) {
             return showMessage({ type: 'error', message: '😭 Already exist snippet. Please try another name' });
         }
 

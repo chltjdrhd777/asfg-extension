@@ -1,8 +1,6 @@
-import * as vscode from 'vscode';
-
 import { baseQuickPick } from './baseQuickPick';
 import { BaseParams } from '../../types';
-import * as contants from '../../constants';
+import { createASFGConfigFolder } from './createASFGConfigFolder';
 
 interface NoConfigPickOption {
     label: string;
@@ -10,38 +8,33 @@ interface NoConfigPickOption {
 }
 interface NoConfigCaseQuickPickParams extends BaseParams {}
 
-export async function noConfigCaseQuickPick({
-    workspaceFolder,
-    resourceControl: {
-        isResourceExistFromRoot,
-        createFolder,
-        createFile,
-        copyResource,
-        getResourcePath,
-        insertContent,
-        readResource,
-    },
-    messageControl: { showTimedMessage },
-}: NoConfigCaseQuickPickParams) {
+export async function noConfigCaseQuickPick(noConfigCaseQuickPickParams: NoConfigCaseQuickPickParams) {
+    const {
+        workspaceFolder,
+        resourceControl: { createFolder, copyResource, getResourcePath },
+        messageControl: { showTimedMessage },
+    } = noConfigCaseQuickPickParams;
     const workSpacePath = workspaceFolder.uri.path;
     //! note : __dirname = dist
     const exampleResourceTemplatePath = getResourcePath([__dirname, 'constants', 'template']);
+    const asfgConfigFolderPath = getResourcePath([workSpacePath, 'asfg.config']);
+    const exampleConfigStructurePath = getResourcePath([exampleResourceTemplatePath, 'asfg.config.example']);
 
     const noConfigPickOptions: NoConfigPickOption[] = [
         {
             label: 'make example folder structure',
             value: () => {
-                const folderPath = getResourcePath([workSpacePath, 'exampleFolder']);
+                const exampleFolderPath = getResourcePath([workSpacePath, 'exampleFolder']);
                 const exampleFolderStructureContentPath = getResourcePath([
                     exampleResourceTemplatePath,
                     'folderStructure.example',
                 ]);
 
                 // 기본 folder structure 및 file 생성
-                createFolder(folderPath);
+                createFolder(exampleFolderPath);
                 copyResource({
                     source: exampleFolderStructureContentPath,
-                    destination: folderPath,
+                    destination: exampleFolderPath,
                 });
 
                 showTimedMessage({ message: '🎉 the example folder is created successfully' });
@@ -50,33 +43,14 @@ export async function noConfigCaseQuickPick({
         {
             label: 'make example config',
             value: () => {
-                // 1. asfg.config folder 생성
-                const asfgConfigFolderPath = getResourcePath([workSpacePath, 'asfg.config']);
-                createFolder(asfgConfigFolderPath);
+                // 1. asfg.config folder 생성 및 .gitignore 등록
+                createASFGConfigFolder({ ...noConfigCaseQuickPickParams, logging: false });
 
                 // 2. example file 복사
-                const exampleConfigStructurePath = getResourcePath([
-                    exampleResourceTemplatePath,
-                    'asfg.config.example',
-                ]);
-
                 copyResource({
                     source: exampleConfigStructurePath,
                     destination: asfgConfigFolderPath,
                 });
-
-                // 3. .gitignore에 등록
-                const gitignoreFilePath = getResourcePath([workSpacePath, '.gitignore']);
-
-                if (!isResourceExistFromRoot('.gitignore')) {
-                    createFile(gitignoreFilePath, contants.exampleGitignoreContent);
-                } else {
-                    const gitignore = readResource(gitignoreFilePath);
-
-                    if (!gitignore?.includes('asfg.config')) {
-                        insertContent(gitignoreFilePath, contants.exampleGitignoreContent);
-                    }
-                }
 
                 showTimedMessage({ message: '🎉 the example asfg.config is created successfully' });
             },

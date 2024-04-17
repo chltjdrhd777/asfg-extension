@@ -28,7 +28,7 @@ export async function applySnippetQuickPick(applySnippetQuickPickParams: ApplySn
                 if (!body) {
                     return showMessage({
                         type: 'error',
-                        message: '😭 no valid body in snippet, please check the json',
+                        message: '😭 Not valid body in snippet, please check the json ',
                     });
                 }
 
