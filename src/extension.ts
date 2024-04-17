@@ -20,14 +20,21 @@ export function activate(context: vscode.ExtensionContext) {
         messageControl,
     };
 
-    context.subscriptions.push(vscode.commands.registerCommand('asfg', getAsfgHandler(baseParams)));
-    context.subscriptions.push(vscode.commands.registerCommand('snippet', getSnippetHandler(baseParams)));
+    // enroll command
+    pushSubscription(context, 'asfg', getAsfgHandler(baseParams));
+    pushSubscription(context, 'register snippet', getRegisterSnippetHandler(baseParams));
+    pushSubscription(context, 'apply snippet', getApplySnippetHandler(baseParams));
 }
 
 /**
  * @helpers
  */
 
+function pushSubscription(context: vscode.ExtensionContext, command: string, handler: (...args: any) => any) {
+    context.subscriptions.push(vscode.commands.registerCommand(command, handler));
+}
+
+// asfg
 function getAsfgHandler(baseParams: BaseParams) {
     return (commandHandlerArgs?: CommandHandlerArgs) => {
         const { resourceControl } = baseParams;
@@ -41,12 +48,19 @@ function getAsfgHandler(baseParams: BaseParams) {
     };
 }
 
-function getSnippetHandler(baseParams: BaseParams) {
+// snippet
+function getRegisterSnippetHandler(baseParams: BaseParams) {
     return () => {
         const editor = vscode.window.activeTextEditor;
         if (editor) {
             const _commonParams = { editor, ...baseParams };
             snippet.createSnippetInput(_commonParams);
         }
+    };
+}
+
+function getApplySnippetHandler(baseParams: BaseParams) {
+    return () => {
+        snippet.applySnippetQuickPick(baseParams);
     };
 }

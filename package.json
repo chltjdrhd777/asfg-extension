@@ -29,8 +29,12 @@
                 "title": "asfg (auto structured folder generator)"
             },
             {
-                "command": "snippet",
-                "title": "(asfg) register a snippet"
+                "command": "register snippet",
+                "title": "(asfg) register snippet"
+            },
+            {
+                "command": "apply snippet",
+                "title": "(asfg) apply snippet"
             }
         ],
         "menus": {
@@ -43,9 +47,14 @@
             ],
             "editor/context": [
                 {
-                    "command": "snippet",
+                    "command": "register snippet",
                     "group": "navigation",
                     "when": "editorHasSelection"
+                },
+                {
+                    "command": "apply snippet",
+                    "group": "navigation",
+                    "when": "editorTextFocus && !editorHasSelection"
                 }
             ]
         }

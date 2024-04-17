@@ -1,10 +1,8 @@
-import * as vscode from 'vscode';
-
 import { baseQuickPick } from './baseQuickPick';
 import { BaseParams } from '../../types';
 
 import * as utils from '../../utils';
-import * as types from '../../types';
+import { ASFGJsonValue } from '../../types';
 
 interface ConfigExistPickOption {
     label: string;
@@ -24,7 +22,7 @@ export async function configExistQuickPick(configExistQuickPickParams: ConfigExi
     const configFolderPath = getResourcePath([workSpacePath, 'asfg.config']);
     const configJsonPath = getResourcePath([configFolderPath, 'config.json']);
 
-    const configJsonData = utils.readConfigJson(configJsonPath);
+    const configJsonData = utils.readConfigJson<ASFGJsonValue | ASFGJsonValue[]>(configJsonPath);
     const configExistPickOptions: ConfigExistPickOption[] = Object.entries(configJsonData).map(
         ([label, jsonValue]) => ({
             label,
@@ -67,7 +65,7 @@ export async function configExistQuickPick(configExistQuickPickParams: ConfigExi
 
 interface GenerateConfigBasedStructureParams extends ConfigExistQuickPickParams {
     label: string;
-    jsonValue: types.JsonValue;
+    jsonValue: ASFGJsonValue;
 }
 const generateConfigBasedStructure = ({
     resourceControl: { isResourceExist, createFolder, copyResource, getResourcePath },

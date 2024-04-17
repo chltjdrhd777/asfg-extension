@@ -27,11 +27,14 @@ export interface BaseParams {
 /**
  * @Config
  */
-export interface JsonValue {
+export interface ASFGJsonValue {
     source: string;
     destination: string;
 }
+export interface SnippetJsonValue {
+    body: string;
+}
 
-export interface ConfigJsonData {
-    [key: string]: JsonValue | JsonValue[];
+export interface ConfigData<Value> {
+    [key: string]: Value;
 }
