@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { mkdirp } from 'mkdirp';
 import * as utils from '../utils';
+import { MessageControl } from './messageControl';
 
 interface CopryResourceParams {
     source: string | URL;
@@ -13,7 +14,7 @@ interface CopryResourceParams {
 
 export class ResourceControl {
     private vscodeFS = vscode.workspace.fs;
-    constructor(private workspaceFolder: vscode.WorkspaceFolder) {}
+    constructor(private workspaceFolder: vscode.WorkspaceFolder, private messageControl: MessageControl) {}
 
     isResourceExist = (targetPath: string | string[]) => {
         if (!Array.isArray(targetPath)) {
@@ -49,6 +50,14 @@ export class ResourceControl {
         }
     };
 
+    writeResource = (path: string, content: string) => {
+        try {
+            fs.writeFileSync(path, content);
+        } catch (err) {
+            console.log('fail to write resource');
+        }
+    };
+
     createFolder = (uri: string) => {
         // this.vscodeFS.createDirectory(uri);
         mkdirp.sync(uri);
@@ -70,18 +79,18 @@ export class ResourceControl {
         callback = err => {
             if (err) {
                 console.log('error is', err);
-                vscode.window.showErrorMessage('unexpected failure for copying the resource');
+
+                this.messageControl.showMessage({
+                    type: 'error',
+                    message: '😭 unexpected failure for copying the resource',
+                });
             }
         },
     }: CopryResourceParams) => {
         fs.cp(source, destination, opts, callback);
     };
 
-    insertContent = (
-        filePath: string,
-        scriptToInsert: string,
-        config?: { insertPosition: 'bottom' | number }
-    ) => {
+    insertContent = (filePath: string, scriptToInsert: string, config?: { insertPosition: 'bottom' | number }) => {
         try {
             let data = fs.readFileSync(filePath, 'utf-8');
             data += `${scriptToInsert}`;

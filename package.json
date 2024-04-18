@@ -4,9 +4,9 @@
     "description": "Auto Structured Folder Generator",
     "publisher": "dev-anderson",
     "icon": "fileicons/icons/asfg-icon.png",
-    "version": "0.0.3",
+    "version": "1.0.1",
     "engines": {
-        "vscode": "^1.87.0"
+        "vscode": "^1.75.0"
     },
     "categories": [
         "Other"
@@ -27,6 +27,14 @@
             {
                 "command": "asfg",
                 "title": "asfg (auto structured folder generator)"
+            },
+            {
+                "command": "register snippet",
+                "title": "(asfg) register snippet"
+            },
+            {
+                "command": "apply snippet",
+                "title": "(asfg) apply snippet"
             }
         ],
         "menus": {
@@ -35,6 +43,18 @@
                     "command": "asfg",
                     "group": "navigation",
                     "when": "explorerResourceIsFolder"
+                }
+            ],
+            "editor/context": [
+                {
+                    "command": "register snippet",
+                    "group": "navigation",
+                    "when": "editorHasSelection"
+                },
+                {
+                    "command": "apply snippet",
+                    "group": "navigation",
+                    "when": "editorTextFocus && !editorHasSelection"
                 }
             ]
         }
@@ -54,7 +74,7 @@
         "@types/mocha": "^10.0.6",
         "@types/node": "18.x",
         "@types/react": "^18.2.64",
-        "@types/vscode": "^1.87.0",
+        "@types/vscode": "1.75.0",
         "@typescript-eslint/eslint-plugin": "^7.0.2",
         "@typescript-eslint/parser": "^7.0.2",
         "@vscode/test-cli": "^0.0.6",
@@ -66,6 +86,9 @@
         "webpack-cli": "^5.1.4"
     },
     "dependencies": {
+        "@tanstack/react-query": "^5.28.8",
+        "axios": "^1.6.8",
+        "copy-webpack-plugin": "^12.0.2",
         "mkdirp": "^3.0.1",
         "react": "^18.2.0"
     }

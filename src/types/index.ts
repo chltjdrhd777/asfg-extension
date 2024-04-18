@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { ResourceControl } from '../modules';
+import { MessageControl } from '../modules/messageControl';
 
 /**
  * @CommonTypes
@@ -15,21 +16,25 @@ export interface CommandHandlerArgs {
     _fsPath: string;
 }
 
-export interface CommonParams {
+export interface BaseParams {
     context: vscode.ExtensionContext;
     workspaceFolder: vscode.WorkspaceFolder;
     resourceControl: ResourceControl;
+    messageControl: MessageControl;
     commandHandlerArgs?: CommandHandlerArgs;
 }
 
 /**
  * @Config
  */
-export interface JsonValue {
+export interface ASFGJsonValue {
     source: string;
     destination: string;
 }
+export interface SnippetJsonValue {
+    body: string;
+}
 
-export interface ConfigJsonData {
-    [key: string]: JsonValue | JsonValue[];
+export interface ConfigData<Value> {
+    [key: string]: Value;
 }
