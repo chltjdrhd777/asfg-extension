@@ -12,7 +12,7 @@ export function createASFGConfigFolder(createASFGConfigFolderParams: CreateASFGC
             createFolder,
             isResourceExistFromRoot,
             getResourcePath,
-            readResource,
+            readFile,
             insertContent,
         },
         messageControl: { showMessage },
@@ -29,7 +29,7 @@ export function createASFGConfigFolder(createASFGConfigFolderParams: CreateASFGC
     if (!isResourceExistFromRoot('.gitignore')) {
         createFile(gitignoreFilePath, contants.exampleGitignoreContent);
     } else {
-        const gitignore = readResource(gitignoreFilePath);
+        const gitignore = readFile(gitignoreFilePath);
 
         if (!gitignore?.includes('asfg.config')) {
             insertContent(gitignoreFilePath, contants.exampleGitignoreContent);

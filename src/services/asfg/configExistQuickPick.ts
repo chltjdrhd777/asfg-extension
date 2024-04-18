@@ -3,6 +3,8 @@ import { BaseParams } from '../../types';
 
 import * as utils from '../../utils';
 import { ASFGJsonValue } from '../../types';
+import { window } from 'vscode';
+import fs from 'fs';
 
 interface ConfigExistPickOption {
     label: string;
@@ -53,7 +55,7 @@ export async function configExistQuickPick(configExistQuickPickParams: ConfigExi
                         });
                     }
 
-                    showTimedMessage({ message: `🎉 success to create ${label} structure` });
+                    // showTimedMessage({ message: `🎉 success to create ${label} structure` });
                 } catch (err) {
                     showMessage({ type: 'error', message: '😭 failed to create structure' });
                 }
@@ -75,14 +77,14 @@ interface GenerateConfigBasedStructureParams extends ConfigExistQuickPickParams 
 const generateConfigBasedStructure = (generateConfigBasedStructureParams: GenerateConfigBasedStructureParams) => {
     const {
         resourceControl: { isResourceExist, createFolder, copyResource, getResourcePath },
-        messageControl: { showMessage, showTimedMessage },
+        messageControl: { showMessage },
         workspaceFolder,
         commandHandlerArgs,
 
         label,
         jsonValue,
     } = generateConfigBasedStructureParams;
-    const { source, destination } = jsonValue;
+    const { source, destination, placeholder } = jsonValue;
 
     // exception 0. json의 형태가 잘못되어 있을 경우
     if (!source || !destination) {
@@ -109,8 +111,135 @@ const generateConfigBasedStructure = (generateConfigBasedStructureParams: Genera
     }
 
     // 지정된 structure을 안에 정의
-    copyResource({
-        source: sourcePath,
-        destination: destinationPath,
-    });
+    if (placeholder) {
+        handlePlaceholder({ ...generateConfigBasedStructureParams, placeholder, sourcePath, destinationPath });
+    } else {
+        copyResource({
+            source: sourcePath,
+            destination: destinationPath,
+        });
+    }
 };
+
+/**
+ * @helpers
+ */
+
+interface HandlePlaceholderParams extends GenerateConfigBasedStructureParams {
+    sourcePath: string;
+    destinationPath: string;
+    placeholder: string[];
+}
+async function handlePlaceholder(handlePlaceholderParams: HandlePlaceholderParams) {
+    const {
+        placeholder,
+        messageControl: { showMessage },
+    } = handlePlaceholderParams;
+
+    if (!Array.isArray(placeholder)) {
+        return showMessage({
+            type: 'error',
+            message: '😭 placeholder is not valid. please set the string array instead',
+        });
+    }
+
+    //1. 사용자의 입력을 받아온다
+    const inputMap = await showInputBoxes(placeholder);
+    changePlaceholderRecursively({ ...handlePlaceholderParams, inputMap });
+}
+
+async function showInputBoxes(placeholder: string[]) {
+    const inputMap = new Map<string, string>();
+    for (let idx = 0; idx < placeholder.length; idx++) {
+        const eachPlaceholder = placeholder[idx];
+        const input = window.createInputBox();
+        input.title = 'Please set your placeholder value';
+        input.step = idx + 1;
+        input.totalSteps = placeholder.length;
+        input.placeholder = eachPlaceholder;
+
+        // input 보이기
+        input.show();
+
+        // 사용자가 입력을 완료하면 실행되는 함수
+        await new Promise(resolve => {
+            input.onDidAccept(() => {
+                const value = input.value;
+                if (!value) {
+                    window.showErrorMessage('😭 Please input a valid value');
+                    return;
+                }
+
+                inputMap.set(eachPlaceholder, value);
+                input.hide();
+                resolve(true);
+            });
+        });
+
+        // 사용자가 input을 숨길 때 input을 삭제
+        input.onDidHide(() => input.dispose());
+    }
+
+    return inputMap;
+}
+
+interface ChangePlaceholderRecursivelyParams extends HandlePlaceholderParams {
+    inputMap: Map<string, string>;
+}
+async function changePlaceholderRecursively(changePlaceholderRecursivelyParams: ChangePlaceholderRecursivelyParams) {
+    const {
+        resourceControl: { createFolder, readFolder, readFile, getResourcePath },
+        messageControl: { showMessage },
+        inputMap,
+        sourcePath: parentSourcePath,
+        destinationPath,
+    } = changePlaceholderRecursivelyParams;
+
+    const resourceNames = readFolder(parentSourcePath);
+
+    const replacePlaceholderToValue = (data: string) => {
+        inputMap.forEach((value, key) => {
+            const regex = new RegExp(`\$\{\{${key}\}\}`, 'g');
+            data = data.replace(regex, value);
+        });
+
+        return data;
+    };
+
+    const recursive = async ({ sourcePath, resourceNames }: { sourcePath: string; resourceNames: string[] }) => {
+        resourceNames.forEach(async resourceName => {
+            const resourcePath = getResourcePath([sourcePath, resourceName]);
+            const stats = await fs.promises.stat(resourcePath);
+
+            if (stats.isDirectory()) {
+                // 폴더일 경우, destination경로로 폴더를 만들어주고 재귀적으로 내부에서 재처리한다.
+                // todo 만약에 placeholder 앞에 ${{}}(예약 스트링) 이 붙어있지 않을 경우 처리하지 않고 넘어가도록 한다
+
+                const replacedFolderName = replacePlaceholderToValue(resourceName);
+                const folderPath = getResourcePath([sourcePath, replacedFolderName]).replace(parentSourcePath, '');
+                createFolder(getResourcePath([destinationPath, folderPath]));
+
+                await recursive({ sourcePath: resourcePath, resourceNames: readFolder(resourcePath) });
+            } else {
+                // 파일일 경우, 파일 이름을 확인해서 해당되면 내부 내용의 placeholder을 변경 후 write한다.
+                const targetFileNameRegex = /^.+\.([^\.]+)\.txt$/;
+
+                if (targetFileNameRegex.test(resourceName)) {
+                    let data = readFile(resourcePath);
+
+                    // console.log('data is ', data);
+
+                    // inputMap.forEach((value, key) => {
+                    //     const inputRegex = new RegExp(key, 'g');
+                    //     data = data.replace(inputRegex, value);
+                    // });
+
+                    // const newFileName = resourceName.replace('.txt', '');
+                    // const newFilePath = getResourcePath([destinationPath, newFileName]);
+                }
+            }
+        });
+    };
+
+    recursive({ sourcePath: parentSourcePath, resourceNames });
+}

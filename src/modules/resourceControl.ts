@@ -41,13 +41,12 @@ export class ResourceControl {
         return utils.getResourcePath(paths);
     };
 
-    readResource = (path: string) => {
-        try {
-            const data = fs.readFileSync(path, 'utf8');
-            return data;
-        } catch (err) {
-            console.log('fail to read resource');
-        }
+    readFolder = (path: string) => {
+        return fs.readdirSync(path);
+    };
+
+    readFile = (path: string) => {
+        return fs.readFileSync(path, 'utf8');
     };
 
     writeResource = (path: string, content: string) => {

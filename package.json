@@ -41,7 +41,7 @@
             "explorer/context": [
                 {
                     "command": "asfg",
-                    "group": "navigation",
+                    "group": "1_modification",
                     "when": "explorerResourceIsFolder"
                 }
             ],
