@@ -84,7 +84,7 @@ As you expected if you select the one, our **"asfg"** will generate folder struc
 > ⚠️ Note!<br/> _source_ and _destination_ are a relative path started from **"asfg.config"** folder. It means that **asfg** will find a source structure from "path/to/you/project/asfg.config/{target source folder name}" and so is definition.
 
 > But if your creation is started from "specific target folder", **"asfg"** will destine the definition started from that folder.
-> For example, if you right-click the "components" folder and select **"asfg"**, it means that the destniation path is **"parent/directory/components/{your destination path}"** like below<br/> <img src="https://raw.githubusercontent.com/chltjdrhd777/image-hosting/main/asfg-config-rightclick-case.png" width="603px" height="555px"/>
+> For example, if you right-click the "components" folder and select **"asfg"**, it means that the destniation path is **"parent/directory/components/{your destination path}"** like below<br/> <img src="https://raw.githubusercontent.com/chltjdrhd777/image-hosting/main/asfg-config-rightclick-case.png" width="603px" height="555px"/> ><br/><br/> So, if you set the destination is like `"../hooks"` and you right-click the folder `"components"`, the creation path is `"to/your/project/components/hooks"`
 
 ---
 
@@ -94,6 +94,23 @@ As you can see above, maybe you hope to create your own structure not from a roo
 The only thing you have to do is hover your cursor, right click, and click **asfg** context menu. Then **asfg** will open the select menu and if choose one, it generate structure based on the folder you choose.
 
 <img src="https://raw.githubusercontent.com/chltjdrhd777/image-hosting/main/asfg-config-rightclick.png" width="353px" height="155px"/>
+
+---
+
+### `case 4 : Placeholder`
+
+If you hope to set specific placeholder to change your filename and content dynamically, you can use "placeholder" option.
+To use it, please follow the step
+
+🚶 1. set "placeholder" property in the config.json
+
+> placeholder must be an "string array"
+
+<img src="https://raw.githubusercontent.com/chltjdrhd777/image-hosting/main/placeholder-1.png" width="553px" height="155px"/><br/><br/>
+
+> 🚶 2. set placeholder to a target name or content
+
+> If you want to change content,
 
 ---
 

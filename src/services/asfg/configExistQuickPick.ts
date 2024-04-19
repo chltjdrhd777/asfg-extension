@@ -184,7 +184,6 @@ interface ChangePlaceholderRecursivelyParams extends HandlePlaceholderParams {
 async function changePlaceholderRecursively(changePlaceholderRecursivelyParams: ChangePlaceholderRecursivelyParams) {
     const {
         resourceControl: { createFolder, readFolder, readFile, createFile, getPath },
-        messageControl: { showMessage },
         inputMap,
         sourcePath,
         destinationPath,
@@ -227,14 +226,14 @@ async function changePlaceholderRecursively(changePlaceholderRecursivelyParams: 
                     resourceNames: readFolder(resourcePath),
                 });
             } else {
-                // 파일일 경우, 파일 이름을 확인해서 해당되면 내부 내용의 placeholder을 변경 후 write한다.
+                // 파일일 경우, 파일 이름을 확인해서 해당되면 파일 이름 및 내부 내용의 placeholder을 변경 후 write한다.
                 const targetFileNameRegex = /^.+\.([^\.]+)\.txt$/;
 
                 if (targetFileNameRegex.test(resourceName)) {
                     let data = readFile(resourcePath);
                     const replacedData = replacePlaceholderToValue(data);
 
-                    const newFileName = resourceName.replace('.txt', '');
+                    const newFileName = replacePlaceholderToValue(resourceName.replace('.txt', ''));
                     const newFilePath = getPath([destinationPath, folderPath, newFileName]);
 
                     createFile(newFilePath, replacedData);
