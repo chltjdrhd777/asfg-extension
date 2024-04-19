@@ -37,8 +37,8 @@ export class ResourceControl {
         return new Uint8Array(data);
     };
 
-    getResourcePath = (paths: string | string[]) => {
-        return utils.getResourcePath(paths);
+    getPath = (paths: string | string[]) => {
+        return utils.getPath(paths);
     };
 
     readFolder = (path: string) => {

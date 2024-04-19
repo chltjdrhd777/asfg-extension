@@ -7,24 +7,17 @@ interface CreateASFGConfigFolderParams extends BaseParams {
 export function createASFGConfigFolder(createASFGConfigFolderParams: CreateASFGConfigFolderParams) {
     const {
         workspaceFolder,
-        resourceControl: {
-            createFile,
-            createFolder,
-            isResourceExistFromRoot,
-            getResourcePath,
-            readFile,
-            insertContent,
-        },
+        resourceControl: { createFile, createFolder, isResourceExistFromRoot, getPath, readFile, insertContent },
         messageControl: { showMessage },
         logging = true,
     } = createASFGConfigFolderParams;
     const workSpacePath = workspaceFolder.uri.path;
 
     // 1. create asfg.config folder
-    createFolder(getResourcePath([workSpacePath, 'asfg.config']));
+    createFolder(getPath([workSpacePath, 'asfg.config']));
 
     // 2. apply this folder to gitignore
-    const gitignoreFilePath = getResourcePath([workSpacePath, '.gitignore']);
+    const gitignoreFilePath = getPath([workSpacePath, '.gitignore']);
 
     if (!isResourceExistFromRoot('.gitignore')) {
         createFile(gitignoreFilePath, contants.exampleGitignoreContent);

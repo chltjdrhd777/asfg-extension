@@ -16,13 +16,13 @@ interface ConfigExistQuickPickParams extends BaseParams {}
 export async function configExistQuickPick(configExistQuickPickParams: ConfigExistQuickPickParams) {
     const {
         workspaceFolder,
-        resourceControl: { getResourcePath, isResourceExist },
+        resourceControl: { getPath, isResourceExist },
         messageControl: { showMessage, showTimedMessage },
     } = configExistQuickPickParams;
 
     const workSpacePath = workspaceFolder.uri.path;
-    const configFolderPath = getResourcePath([workSpacePath, 'asfg.config']);
-    const configJsonPath = getResourcePath([configFolderPath, 'config.json']);
+    const configFolderPath = getPath([workSpacePath, 'asfg.config']);
+    const configJsonPath = getPath([configFolderPath, 'config.json']);
 
     // 만약 config.json이 없을 경우
     if (!isResourceExist(configJsonPath)) {
@@ -76,7 +76,7 @@ interface GenerateConfigBasedStructureParams extends ConfigExistQuickPickParams 
 }
 const generateConfigBasedStructure = (generateConfigBasedStructureParams: GenerateConfigBasedStructureParams) => {
     const {
-        resourceControl: { isResourceExist, createFolder, copyResource, getResourcePath },
+        resourceControl: { isResourceExist, createFolder, copyResource, getPath },
         messageControl: { showMessage },
         workspaceFolder,
         commandHandlerArgs,
@@ -92,13 +92,13 @@ const generateConfigBasedStructure = (generateConfigBasedStructureParams: Genera
     }
 
     const workSpacePath = workspaceFolder.uri.path;
-    const configFolderPath = getResourcePath([workSpacePath, 'asfg.config']);
-    const sourcePath = getResourcePath([configFolderPath, source]);
+    const configFolderPath = getPath([workSpacePath, 'asfg.config']);
+    const sourcePath = getPath([configFolderPath, source]);
 
     // 만약 commandHandlerArgs가 존재한다는건 => 우클릭을 통해서 command를 실행했다는 것 => 우클릭 폴더가 생성 기점이 되어야 한다.
     const destinationPath = commandHandlerArgs
-        ? getResourcePath([commandHandlerArgs.path, utils.flatStartRelativePath(destination)])
-        : getResourcePath([configFolderPath, destination]);
+        ? getPath([commandHandlerArgs.path, utils.flatStartRelativePath(destination)])
+        : getPath([configFolderPath, destination]);
 
     // execption 1. json에 source가 제대로 정의되어있지 않을 경우
     if (!isResourceExist(sourcePath)) {
@@ -188,27 +188,27 @@ interface ChangePlaceholderRecursivelyParams extends HandlePlaceholderParams {
 }
 async function changePlaceholderRecursively(changePlaceholderRecursivelyParams: ChangePlaceholderRecursivelyParams) {
     const {
-        resourceControl: { createFolder, readFolder, readFile, getResourcePath },
+        resourceControl: { createFolder, readFolder, readFile, getPath },
         messageControl: { showMessage },
         inputMap,
-        sourcePath: parentSourcePath,
+        sourcePath,
         destinationPath,
     } = changePlaceholderRecursivelyParams;
 
-    const resourceNames = readFolder(parentSourcePath);
+    const resourceNames = readFolder(sourcePath);
 
     const replacePlaceholderToValue = (data: string) => {
         inputMap.forEach((value, key) => {
-            const regex = new RegExp(`\$\{\{${key}\}\}`, 'g');
+            const regex = new RegExp(`\\${key}`, 'g');
             data = data.replace(regex, value);
         });
 
         return data;
     };
 
-    const recursive = async ({ sourcePath, resourceNames }: { sourcePath: string; resourceNames: string[] }) => {
+    const recursive = async ({ resourceNames }: { resourceNames: string[] }) => {
         resourceNames.forEach(async resourceName => {
-            const resourcePath = getResourcePath([sourcePath, resourceName]);
+            const resourcePath = getPath([sourcePath, resourceName]);
             const stats = await fs.promises.stat(resourcePath);
 
             if (stats.isDirectory()) {
@@ -216,10 +216,14 @@ async function changePlaceholderRecursively(changePlaceholderRecursivelyParams: 
                 // todo 만약에 placeholder 앞에 ${{}}(예약 스트링) 이 붙어있지 않을 경우 처리하지 않고 넘어가도록 한다
 
                 const replacedFolderName = replacePlaceholderToValue(resourceName);
-                const folderPath = getResourcePath([sourcePath, replacedFolderName]).replace(parentSourcePath, '');
-                createFolder(getResourcePath([destinationPath, folderPath]));
+                // const folderPath = getPath([sourcePath, replacedFolderName]).replace(parentSourcePath, '');
 
-                await recursive({ sourcePath: resourcePath, resourceNames: readFolder(resourcePath) });
+                console.log('replaced Folder name', replacedFolderName);
+                // console.log('folder Path', folderPath);
+
+                // createFolder(getPath([destinationPath, folderPath]));
+
+                await recursive({ resourceNames: readFolder(resourcePath) });
             } else {
                 // 파일일 경우, 파일 이름을 확인해서 해당되면 내부 내용의 placeholder을 변경 후 write한다.
                 const targetFileNameRegex = /^.+\.([^\.]+)\.txt$/;
@@ -235,11 +239,11 @@ async function changePlaceholderRecursively(changePlaceholderRecursivelyParams: 
                     // });
 
                     // const newFileName = resourceName.replace('.txt', '');
-                    // const newFilePath = getResourcePath([destinationPath, newFileName]);
+                    // const newFilePath = getPath([destinationPath, newFileName]);
                 }
             }
         });
     };
 
-    recursive({ sourcePath: parentSourcePath, resourceNames });
+    recursive({ resourceNames });
 }

@@ -11,21 +11,21 @@ interface NoConfigCaseQuickPickParams extends BaseParams {}
 export async function noConfigCaseQuickPick(noConfigCaseQuickPickParams: NoConfigCaseQuickPickParams) {
     const {
         workspaceFolder,
-        resourceControl: { createFolder, copyResource, getResourcePath },
+        resourceControl: { createFolder, copyResource, getPath },
         messageControl: { showTimedMessage },
     } = noConfigCaseQuickPickParams;
     const workSpacePath = workspaceFolder.uri.path;
     //! note : __dirname = dist
-    const exampleResourceTemplatePath = getResourcePath([__dirname, 'constants', 'template']);
-    const asfgConfigFolderPath = getResourcePath([workSpacePath, 'asfg.config']);
-    const exampleConfigStructurePath = getResourcePath([exampleResourceTemplatePath, 'asfg.config.example']);
+    const exampleResourceTemplatePath = getPath([__dirname, 'constants', 'template']);
+    const asfgConfigFolderPath = getPath([workSpacePath, 'asfg.config']);
+    const exampleConfigStructurePath = getPath([exampleResourceTemplatePath, 'asfg.config.example']);
 
     const noConfigPickOptions: NoConfigPickOption[] = [
         {
             label: 'make example folder structure',
             value: () => {
-                const exampleFolderPath = getResourcePath([workSpacePath, 'exampleFolder']);
-                const exampleFolderStructureContentPath = getResourcePath([
+                const exampleFolderPath = getPath([workSpacePath, 'exampleFolder']);
+                const exampleFolderStructureContentPath = getPath([
                     exampleResourceTemplatePath,
                     'folderStructure.example',
                 ]);

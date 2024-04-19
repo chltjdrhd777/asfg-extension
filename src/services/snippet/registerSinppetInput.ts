@@ -10,13 +10,13 @@ export async function registerSnippetInput(registerSinppetInputParams: RegisterS
     const {
         editor,
         workspaceFolder,
-        resourceControl: { getResourcePath, createFile, createFolder, isResourceExist, readFile, writeResource },
+        resourceControl: { getPath, createFile, createFolder, isResourceExist, readFile, writeResource },
         messageControl: { showMessage, showTimedMessage },
     } = registerSinppetInputParams;
 
     const workSpacePath = workspaceFolder.uri.path;
-    const configFolderPath = getResourcePath([workSpacePath, 'asfg.config']);
-    const snippetsJsonPath = getResourcePath([configFolderPath, 'snippets.json']);
+    const configFolderPath = getPath([workSpacePath, 'asfg.config']);
+    const snippetsJsonPath = getPath([configFolderPath, 'snippets.json']);
 
     const input = window.createInputBox();
     input.placeholder = 'input the name of snippet';

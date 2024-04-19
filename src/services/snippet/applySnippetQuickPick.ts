@@ -9,13 +9,13 @@ interface ApplySnippetQuickPickParams extends BaseParams {}
 export async function applySnippetQuickPick(applySnippetQuickPickParams: ApplySnippetQuickPickParams) {
     const {
         workspaceFolder,
-        resourceControl: { getResourcePath },
+        resourceControl: { getPath },
         messageControl: { showMessage },
     } = applySnippetQuickPickParams;
 
     const workSpacePath = workspaceFolder.uri.path;
-    const configFolderPath = getResourcePath([workSpacePath, 'asfg.config']);
-    const snippetsJsonPath = getResourcePath([configFolderPath, 'snippets.json']);
+    const configFolderPath = getPath([workSpacePath, 'asfg.config']);
+    const snippetsJsonPath = getPath([configFolderPath, 'snippets.json']);
 
     const snippetsJsonData = utils.readConfigJson<types.SnippetJsonValue>(snippetsJsonPath);
 
