@@ -1,4 +1,4 @@
 export { createEnums } from './createEnums';
-export { getResourcePath } from './getResourcePath';
+export { getPath } from './getPath';
 export { readConfigJson } from './readConfigJson';
 export { flatStartRelativePath } from './flatStartRelativePath';

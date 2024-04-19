@@ -30,6 +30,7 @@ export interface BaseParams {
 export interface ASFGJsonValue {
     source: string;
     destination: string;
+    placeholder?: string[];
 }
 export interface SnippetJsonValue {
     body: string;

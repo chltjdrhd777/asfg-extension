@@ -3,6 +3,8 @@ import { BaseParams } from '../../types';
 
 import * as utils from '../../utils';
 import { ASFGJsonValue } from '../../types';
+import { window } from 'vscode';
+import fs from 'fs';
 
 interface ConfigExistPickOption {
     label: string;
@@ -14,13 +16,13 @@ interface ConfigExistQuickPickParams extends BaseParams {}
 export async function configExistQuickPick(configExistQuickPickParams: ConfigExistQuickPickParams) {
     const {
         workspaceFolder,
-        resourceControl: { getResourcePath, isResourceExist },
+        resourceControl: { getPath, isResourceExist },
         messageControl: { showMessage, showTimedMessage },
     } = configExistQuickPickParams;
 
     const workSpacePath = workspaceFolder.uri.path;
-    const configFolderPath = getResourcePath([workSpacePath, 'asfg.config']);
-    const configJsonPath = getResourcePath([configFolderPath, 'config.json']);
+    const configFolderPath = getPath([workSpacePath, 'asfg.config']);
+    const configJsonPath = getPath([configFolderPath, 'config.json']);
 
     // 만약 config.json이 없을 경우
     if (!isResourceExist(configJsonPath)) {
@@ -37,13 +39,18 @@ export async function configExistQuickPick(configExistQuickPickParams: ConfigExi
                     if (Array.isArray(jsonValue)) {
                         const jsonValues = jsonValue;
 
-                        jsonValues.map(_jsonValue =>
-                            generateConfigBasedStructure({
-                                label,
-                                jsonValue: _jsonValue,
-                                ...configExistQuickPickParams,
-                            })
+                        const promises = jsonValues.map(
+                            _jsonValue => async () =>
+                                await generateConfigBasedStructure({
+                                    label,
+                                    jsonValue: _jsonValue,
+                                    ...configExistQuickPickParams,
+                                })
                         );
+
+                        promises.reduce(async (acc, cur) => {
+                            return acc.then(async () => await cur());
+                        }, Promise.resolve());
                     } else {
                         //2. 그 외 = config value는 단일 생성으로 되어있을 경우(x 배열)
                         generateConfigBasedStructure({
@@ -53,7 +60,7 @@ export async function configExistQuickPick(configExistQuickPickParams: ConfigExi
                         });
                     }
 
-                    showTimedMessage({ message: `🎉 success to create ${label} structure` });
+                    // showTimedMessage({ message: `🎉 success to create ${label} structure` });
                 } catch (err) {
                     showMessage({ type: 'error', message: '😭 failed to create structure' });
                 }
@@ -72,17 +79,17 @@ interface GenerateConfigBasedStructureParams extends ConfigExistQuickPickParams 
     label: string;
     jsonValue: ASFGJsonValue;
 }
-const generateConfigBasedStructure = (generateConfigBasedStructureParams: GenerateConfigBasedStructureParams) => {
+const generateConfigBasedStructure = async (generateConfigBasedStructureParams: GenerateConfigBasedStructureParams) => {
     const {
-        resourceControl: { isResourceExist, createFolder, copyResource, getResourcePath },
-        messageControl: { showMessage, showTimedMessage },
+        resourceControl: { isResourceExist, createFolder, copyResource, getPath },
+        messageControl: { showMessage },
         workspaceFolder,
         commandHandlerArgs,
 
         label,
         jsonValue,
     } = generateConfigBasedStructureParams;
-    const { source, destination } = jsonValue;
+    const { source, destination, placeholder } = jsonValue;
 
     // exception 0. json의 형태가 잘못되어 있을 경우
     if (!source || !destination) {
@@ -90,27 +97,162 @@ const generateConfigBasedStructure = (generateConfigBasedStructureParams: Genera
     }
 
     const workSpacePath = workspaceFolder.uri.path;
-    const configFolderPath = getResourcePath([workSpacePath, 'asfg.config']);
-    const sourcePath = getResourcePath([configFolderPath, source]);
+    const configFolderPath = getPath([workSpacePath, 'asfg.config']);
+    const sourcePath = getPath([configFolderPath, source]);
 
     // 만약 commandHandlerArgs가 존재한다는건 => 우클릭을 통해서 command를 실행했다는 것 => 우클릭 폴더가 생성 기점이 되어야 한다.
     const destinationPath = commandHandlerArgs
-        ? getResourcePath([commandHandlerArgs.path, utils.flatStartRelativePath(destination)])
-        : getResourcePath([configFolderPath, destination]);
+        ? getPath([commandHandlerArgs.path, utils.flatStartRelativePath(destination)])
+        : getPath([configFolderPath, destination]);
 
     // execption 1. json에 source가 제대로 정의되어있지 않을 경우
     if (!isResourceExist(sourcePath)) {
         return showMessage({ type: 'error', message: `😭 no source exist for ${label}` });
     }
 
-    // exception 2. json에 destination의 폴더 경로가 제대로 생성되어 있지 않을 경우
-    if (!isResourceExist(destinationPath)) {
-        createFolder(destinationPath);
+    // 지정된 structure을 안에 정의
+    if (placeholder) {
+        await handlePlaceholder({ ...generateConfigBasedStructureParams, placeholder, sourcePath, destinationPath });
+    } else {
+        copyResource({
+            source: sourcePath,
+            destination: destinationPath,
+        });
+    }
+};
+
+/**
+ * @helpers
+ */
+
+interface HandlePlaceholderParams extends GenerateConfigBasedStructureParams {
+    sourcePath: string;
+    destinationPath: string;
+    placeholder: string[];
+}
+async function handlePlaceholder(handlePlaceholderParams: HandlePlaceholderParams) {
+    const {
+        placeholder,
+        messageControl: { showMessage },
+    } = handlePlaceholderParams;
+
+    if (!Array.isArray(placeholder)) {
+        return showMessage({
+            type: 'error',
+            message: '😭 placeholder is not valid. please set the string array instead',
+        });
     }
 
-    // 지정된 structure을 안에 정의
-    copyResource({
-        source: sourcePath,
-        destination: destinationPath,
-    });
-};
+    //1. 사용자의 입력을 받아온다
+    const inputMap = await showInputBoxes(placeholder);
+    changePlaceholderRecursively({ ...handlePlaceholderParams, inputMap });
+}
+
+async function showInputBoxes(placeholder: string[]) {
+    const inputMap = new Map<string, string>();
+    for (let idx = 0; idx < placeholder.length; idx++) {
+        const eachPlaceholder = placeholder[idx];
+        const input = window.createInputBox();
+        input.title = 'Please set your placeholder value';
+        input.step = idx + 1;
+        input.totalSteps = placeholder.length;
+        input.placeholder = eachPlaceholder;
+
+        // input 보이기
+        input.show();
+
+        // 사용자가 입력을 완료하면 실행되는 함수
+        await new Promise(resolve => {
+            input.onDidAccept(() => {
+                const value = input.value;
+                if (!value) {
+                    window.showErrorMessage('😭 Please input a valid value');
+                    return;
+                }
+
+                inputMap.set(eachPlaceholder, value);
+                input.hide();
+                resolve(true);
+            });
+        });
+
+        // 사용자가 input을 숨길 때 input을 삭제
+        input.onDidHide(() => input.dispose());
+    }
+
+    return inputMap;
+}
+
+interface ChangePlaceholderRecursivelyParams extends HandlePlaceholderParams {
+    inputMap: Map<string, string>;
+}
+async function changePlaceholderRecursively(changePlaceholderRecursivelyParams: ChangePlaceholderRecursivelyParams) {
+    const {
+        resourceControl: { createFolder, readFolder, readFile, createFile, getPath },
+        inputMap,
+        sourcePath,
+        destinationPath,
+    } = changePlaceholderRecursivelyParams;
+
+    const resourceNames = readFolder(sourcePath);
+
+    const replacePlaceholderToValue = (data: string) => {
+        inputMap.forEach((value, key) => {
+            const regex = new RegExp(`\\${key}`, 'gi');
+            data = data.replace(regex, value);
+        });
+
+        return data;
+    };
+
+    const recursive = async ({
+        sourcePath,
+        folderPath = '',
+        resourceNames,
+    }: {
+        sourcePath: string;
+        folderPath?: string;
+        resourceNames: string[];
+    }) => {
+        resourceNames.forEach(async resourceName => {
+            const resourcePath = getPath([sourcePath, resourceName]);
+            const stats = await fs.promises.stat(resourcePath);
+
+            if (stats.isDirectory()) {
+                // 폴더일 경우, destination경로로 폴더를 만들어주고 재귀적으로 내부에서 재처리한다.
+                const replacedFolderName = replacePlaceholderToValue(resourceName);
+                const destinationFolderPath = getPath([folderPath, replacedFolderName]);
+
+                createFolder(getPath([destinationPath, destinationFolderPath]));
+
+                await recursive({
+                    sourcePath: resourcePath,
+                    folderPath: destinationFolderPath,
+                    resourceNames: readFolder(resourcePath),
+                });
+            } else {
+                // 파일일 경우, 파일 이름을 확인해서 해당되면 파일 이름 및 내부 내용의 placeholder을 변경 후 write한다.
+                // 컨텐츠가 바뀔 경우는 이름확장자 필요하고, 아닐 경우는 그냥 이름만 placeholder 바꾼다.
+
+                const targetFileNameRegex = /^.+\.([^\.]+)\.txt$/;
+                const data = readFile(resourcePath);
+
+                if (targetFileNameRegex.test(resourceName)) {
+                    const replacedData = replacePlaceholderToValue(data);
+
+                    const newFileName = replacePlaceholderToValue(resourceName.replace('.txt', ''));
+                    const newFilePath = getPath([destinationPath, folderPath, newFileName]);
+
+                    createFile(newFilePath, replacedData);
+                } else {
+                    const newFileName = replacePlaceholderToValue(resourceName);
+                    const newFilePath = getPath([destinationPath, folderPath, newFileName]);
+
+                    createFile(newFilePath, data);
+                }
+            }
+        });
+    };
+
+    recursive({ sourcePath, resourceNames });
+}

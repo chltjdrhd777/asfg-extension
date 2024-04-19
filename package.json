@@ -4,7 +4,7 @@
     "description": "Auto Structured Folder Generator",
     "publisher": "dev-anderson",
     "icon": "fileicons/icons/asfg-icon.png",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "engines": {
         "vscode": "^1.75.0"
     },
@@ -41,7 +41,7 @@
             "explorer/context": [
                 {
                     "command": "asfg",
-                    "group": "navigation",
+                    "group": "1_modification",
                     "when": "explorerResourceIsFolder"
                 }
             ],

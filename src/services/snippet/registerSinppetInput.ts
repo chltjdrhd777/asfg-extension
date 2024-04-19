@@ -10,13 +10,13 @@ export async function registerSnippetInput(registerSinppetInputParams: RegisterS
     const {
         editor,
         workspaceFolder,
-        resourceControl: { getResourcePath, createFile, createFolder, isResourceExist, readResource, writeResource },
+        resourceControl: { getPath, createFile, createFolder, isResourceExist, readFile, writeResource },
         messageControl: { showMessage, showTimedMessage },
     } = registerSinppetInputParams;
 
     const workSpacePath = workspaceFolder.uri.path;
-    const configFolderPath = getResourcePath([workSpacePath, 'asfg.config']);
-    const snippetsJsonPath = getResourcePath([configFolderPath, 'snippets.json']);
+    const configFolderPath = getPath([workSpacePath, 'asfg.config']);
+    const snippetsJsonPath = getPath([configFolderPath, 'snippets.json']);
 
     const input = window.createInputBox();
     input.placeholder = 'input the name of snippet';
@@ -35,7 +35,7 @@ export async function registerSnippetInput(registerSinppetInputParams: RegisterS
         }
 
         //2. read snippets json and check whether the snippet name is registered
-        const resource = readResource(snippetsJsonPath) as string;
+        const resource = readFile(snippetsJsonPath) as string;
         const prevContent = JSON.parse(resource ?? {});
         const isAlreadyExistSnippetName = Object.keys(prevContent).find(snippetName => snippetName === inputValue);
         if (isAlreadyExistSnippetName) {

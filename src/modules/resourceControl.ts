@@ -6,8 +6,8 @@ import * as utils from '../utils';
 import { MessageControl } from './messageControl';
 
 interface CopryResourceParams {
-    source: string | URL;
-    destination: string | URL;
+    source: string;
+    destination: string;
     opts?: fs.CopyOptions;
     callback?: (err: NodeJS.ErrnoException | null) => void;
 }
@@ -37,17 +37,16 @@ export class ResourceControl {
         return new Uint8Array(data);
     };
 
-    getResourcePath = (paths: string | string[]) => {
-        return utils.getResourcePath(paths);
+    getPath = (paths: string | string[]) => {
+        return utils.getPath(paths);
     };
 
-    readResource = (path: string) => {
-        try {
-            const data = fs.readFileSync(path, 'utf8');
-            return data;
-        } catch (err) {
-            console.log('fail to read resource');
-        }
+    readFolder = (path: string) => {
+        return fs.readdirSync(path);
+    };
+
+    readFile = (path: string) => {
+        return fs.readFileSync(path, 'utf8');
     };
 
     writeResource = (path: string, content: string) => {
@@ -87,6 +86,10 @@ export class ResourceControl {
             }
         },
     }: CopryResourceParams) => {
+        if (destination && !this.isResourceExist(destination)) {
+            this.createFolder(destination);
+        }
+
         fs.cp(source, destination, opts, callback);
     };
 
