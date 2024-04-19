@@ -39,13 +39,18 @@ export async function configExistQuickPick(configExistQuickPickParams: ConfigExi
                     if (Array.isArray(jsonValue)) {
                         const jsonValues = jsonValue;
 
-                        jsonValues.map(_jsonValue =>
-                            generateConfigBasedStructure({
-                                label,
-                                jsonValue: _jsonValue,
-                                ...configExistQuickPickParams,
-                            })
+                        const promises = jsonValues.map(
+                            _jsonValue => async () =>
+                                await generateConfigBasedStructure({
+                                    label,
+                                    jsonValue: _jsonValue,
+                                    ...configExistQuickPickParams,
+                                })
                         );
+
+                        promises.reduce(async (acc, cur) => {
+                            return acc.then(async () => await cur());
+                        }, Promise.resolve());
                     } else {
                         //2. 그 외 = config value는 단일 생성으로 되어있을 경우(x 배열)
                         generateConfigBasedStructure({
@@ -74,7 +79,7 @@ interface GenerateConfigBasedStructureParams extends ConfigExistQuickPickParams 
     label: string;
     jsonValue: ASFGJsonValue;
 }
-const generateConfigBasedStructure = (generateConfigBasedStructureParams: GenerateConfigBasedStructureParams) => {
+const generateConfigBasedStructure = async (generateConfigBasedStructureParams: GenerateConfigBasedStructureParams) => {
     const {
         resourceControl: { isResourceExist, createFolder, copyResource, getPath },
         messageControl: { showMessage },
@@ -107,7 +112,7 @@ const generateConfigBasedStructure = (generateConfigBasedStructureParams: Genera
 
     // 지정된 structure을 안에 정의
     if (placeholder) {
-        handlePlaceholder({ ...generateConfigBasedStructureParams, placeholder, sourcePath, destinationPath });
+        await handlePlaceholder({ ...generateConfigBasedStructureParams, placeholder, sourcePath, destinationPath });
     } else {
         copyResource({
             source: sourcePath,
@@ -227,16 +232,23 @@ async function changePlaceholderRecursively(changePlaceholderRecursivelyParams: 
                 });
             } else {
                 // 파일일 경우, 파일 이름을 확인해서 해당되면 파일 이름 및 내부 내용의 placeholder을 변경 후 write한다.
+                // 컨텐츠가 바뀔 경우는 이름확장자 필요하고, 아닐 경우는 그냥 이름만 placeholder 바꾼다.
+
                 const targetFileNameRegex = /^.+\.([^\.]+)\.txt$/;
+                const data = readFile(resourcePath);
 
                 if (targetFileNameRegex.test(resourceName)) {
-                    let data = readFile(resourcePath);
                     const replacedData = replacePlaceholderToValue(data);
 
                     const newFileName = replacePlaceholderToValue(resourceName.replace('.txt', ''));
                     const newFilePath = getPath([destinationPath, folderPath, newFileName]);
 
                     createFile(newFilePath, replacedData);
+                } else {
+                    const newFileName = replacePlaceholderToValue(resourceName);
+                    const newFilePath = getPath([destinationPath, folderPath, newFileName]);
+
+                    createFile(newFilePath, data);
                 }
             }
         });
