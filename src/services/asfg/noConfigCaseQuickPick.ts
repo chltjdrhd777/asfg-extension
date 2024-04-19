@@ -31,7 +31,6 @@ export async function noConfigCaseQuickPick(noConfigCaseQuickPickParams: NoConfi
                 ]);
 
                 // 기본 folder structure 및 file 생성
-                createFolder(exampleFolderPath);
                 copyResource({
                     source: exampleFolderStructureContentPath,
                     destination: exampleFolderPath,

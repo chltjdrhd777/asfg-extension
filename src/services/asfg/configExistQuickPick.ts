@@ -105,11 +105,6 @@ const generateConfigBasedStructure = (generateConfigBasedStructureParams: Genera
         return showMessage({ type: 'error', message: `😭 no source exist for ${label}` });
     }
 
-    // exception 2. json에 destination의 폴더 경로가 제대로 생성되어 있지 않을 경우
-    if (!isResourceExist(destinationPath)) {
-        createFolder(destinationPath);
-    }
-
     // 지정된 structure을 안에 정의
     if (placeholder) {
         handlePlaceholder({ ...generateConfigBasedStructureParams, placeholder, sourcePath, destinationPath });

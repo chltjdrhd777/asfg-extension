@@ -6,8 +6,8 @@ import * as utils from '../utils';
 import { MessageControl } from './messageControl';
 
 interface CopryResourceParams {
-    source: string | URL;
-    destination: string | URL;
+    source: string;
+    destination: string;
     opts?: fs.CopyOptions;
     callback?: (err: NodeJS.ErrnoException | null) => void;
 }
@@ -86,6 +86,10 @@ export class ResourceControl {
             }
         },
     }: CopryResourceParams) => {
+        if (destination && !this.isResourceExist(destination)) {
+            this.createFolder(destination);
+        }
+
         fs.cp(source, destination, opts, callback);
     };
 
