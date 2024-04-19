@@ -40,12 +40,6 @@ If you have a large number of folders that need to be created for frequent repet
 
 <br/>
 
-## ⭐ Configuration
-
-This extension works based on a custom configuration.
-
-There are two cases you could meet when you use this extension.
-
 ---
 
 ## ⭐ Extra Description For "ASFG"
