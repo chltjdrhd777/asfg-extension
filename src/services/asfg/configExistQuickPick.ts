@@ -188,7 +188,7 @@ interface ChangePlaceholderRecursivelyParams extends HandlePlaceholderParams {
 }
 async function changePlaceholderRecursively(changePlaceholderRecursivelyParams: ChangePlaceholderRecursivelyParams) {
     const {
-        resourceControl: { createFolder, readFolder, readFile, getPath },
+        resourceControl: { createFolder, readFolder, readFile, createFile, getPath },
         messageControl: { showMessage },
         inputMap,
         sourcePath,
@@ -199,51 +199,54 @@ async function changePlaceholderRecursively(changePlaceholderRecursivelyParams: 
 
     const replacePlaceholderToValue = (data: string) => {
         inputMap.forEach((value, key) => {
-            const regex = new RegExp(`\\${key}`, 'g');
+            const regex = new RegExp(`\\${key}`, 'gi');
             data = data.replace(regex, value);
         });
 
         return data;
     };
 
-    const recursive = async ({ resourceNames }: { resourceNames: string[] }) => {
+    const recursive = async ({
+        sourcePath,
+        folderPath = '',
+        resourceNames,
+    }: {
+        sourcePath: string;
+        folderPath?: string;
+        resourceNames: string[];
+    }) => {
         resourceNames.forEach(async resourceName => {
             const resourcePath = getPath([sourcePath, resourceName]);
             const stats = await fs.promises.stat(resourcePath);
 
             if (stats.isDirectory()) {
                 // 폴더일 경우, destination경로로 폴더를 만들어주고 재귀적으로 내부에서 재처리한다.
-                // todo 만약에 placeholder 앞에 ${{}}(예약 스트링) 이 붙어있지 않을 경우 처리하지 않고 넘어가도록 한다
-
                 const replacedFolderName = replacePlaceholderToValue(resourceName);
-                // const folderPath = getPath([sourcePath, replacedFolderName]).replace(parentSourcePath, '');
+                const destinationFolderPath = getPath([folderPath, replacedFolderName]);
 
-                console.log('replaced Folder name', replacedFolderName);
-                // console.log('folder Path', folderPath);
+                createFolder(getPath([destinationPath, destinationFolderPath]));
 
-                // createFolder(getPath([destinationPath, folderPath]));
-
-                await recursive({ resourceNames: readFolder(resourcePath) });
+                await recursive({
+                    sourcePath: resourcePath,
+                    folderPath: destinationFolderPath,
+                    resourceNames: readFolder(resourcePath),
+                });
             } else {
                 // 파일일 경우, 파일 이름을 확인해서 해당되면 내부 내용의 placeholder을 변경 후 write한다.
                 const targetFileNameRegex = /^.+\.([^\.]+)\.txt$/;
 
                 if (targetFileNameRegex.test(resourceName)) {
                     let data = readFile(resourcePath);
+                    const replacedData = replacePlaceholderToValue(data);
 
-                    // console.log('data is ', data);
+                    const newFileName = resourceName.replace('.txt', '');
+                    const newFilePath = getPath([destinationPath, folderPath, newFileName]);
 
-                    // inputMap.forEach((value, key) => {
-                    //     const inputRegex = new RegExp(key, 'g');
-                    //     data = data.replace(inputRegex, value);
-                    // });
-
-                    // const newFileName = resourceName.replace('.txt', '');
-                    // const newFilePath = getPath([destinationPath, newFileName]);
+                    createFile(newFilePath, replacedData);
                 }
             }
         });
     };
 
-    recursive({ resourceNames });
+    recursive({ sourcePath, resourceNames });
 }
