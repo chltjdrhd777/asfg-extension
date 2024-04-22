@@ -50,7 +50,7 @@ const extensionConfig = {
     },
     plugins: [
         new CopyPlugin({
-            patterns: [{ from: 'src/constants', to: 'constants', globOptions: { ignore: [] } }],
+            patterns: [{ from: 'src/constants', to: 'constants' }],
         }),
     ],
 };

@@ -110,6 +110,11 @@ To use it, please follow the step
 
 > Then, if you select the asfg command with placeholder option, placeholder input will be popped. you can type the value and **asfg** changes all placeholder to the value you set<br/><img src="https://raw.githubusercontent.com/chltjdrhd777/image-hosting/main/placeholder-6.png" width="553px" height="155px"/> <br/> > <img src="https://raw.githubusercontent.com/chltjdrhd777/image-hosting/main/placeholder-7.png" width="553px" height="155px"/><br/><br/> <img src="https://raw.githubusercontent.com/chltjdrhd777/image-hosting/main/placeholder-8.png" width="553px" height="255px"/>
 
+> 🤖 Note!
+> If you hope to use single placeholder set for multi-generating structure, then you can use the first "single" placeholder set like below. <br/><br/> The only thing you have to do is just set the placeholder array on the first array element. Then, others will follow the first placeholder set.
+
+<img src="https://raw.githubusercontent.com/chltjdrhd777/image-hosting/main/placeholder-last.png" width="553px" height="255px"/>
+
 ---
 
 ## ⭐ Extra Description For "Snippet"

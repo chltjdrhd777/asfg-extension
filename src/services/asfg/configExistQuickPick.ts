@@ -33,36 +33,71 @@ export async function configExistQuickPick(configExistQuickPickParams: ConfigExi
     const configExistPickOptions: ConfigExistPickOption[] = Object.entries(configJsonData).map(
         ([label, jsonValue]) => ({
             label,
-            value: () => {
-                try {
-                    // 1. 만약 config value가 다중 생성(여러 폴더에 구조 생성)일 경우(배열)
-                    if (Array.isArray(jsonValue)) {
-                        const jsonValues = jsonValue;
+            value: async () => {
+                const isSucceessToCreate = await new Promise(async (resolve, reject) => {
+                    try {
+                        // 1. 만약 config value가 다중 생성(여러 폴더에 구조 생성)일 경우(배열)
 
-                        const promises = jsonValues.map(
-                            _jsonValue => async () =>
-                                await generateConfigBasedStructure({
-                                    label,
-                                    jsonValue: _jsonValue,
-                                    ...configExistQuickPickParams,
-                                })
-                        );
+                        if (Array.isArray(jsonValue)) {
+                            let jsonValues = jsonValue;
 
-                        promises.reduce(async (acc, cur) => {
-                            return acc.then(async () => await cur());
-                        }, Promise.resolve());
-                    } else {
-                        //2. 그 외 = config value는 단일 생성으로 되어있을 경우(x 배열)
-                        generateConfigBasedStructure({
-                            label,
-                            jsonValue,
-                            ...configExistQuickPickParams,
-                        });
+                            const firstElementEntry = Object.entries(jsonValues[0]);
+                            let singlePlaceholder: undefined | Map<string, string>;
+
+                            if (firstElementEntry.length === 1 && firstElementEntry[0][0] === 'placeholder') {
+                                const placeholderList = firstElementEntry[0][1];
+
+                                if (!Array.isArray(placeholderList)) {
+                                    return showMessage({
+                                        type: 'error',
+                                        message: '😭 placeholder is not valid. please set the string array instead',
+                                    });
+                                }
+
+                                const input = await showInputBoxes(placeholderList);
+
+                                singlePlaceholder = input;
+                                jsonValues = jsonValues.slice(1);
+                            }
+
+                            const promises = jsonValues.map(
+                                _jsonValue => async () =>
+                                    await generateConfigBasedStructure({
+                                        label,
+                                        jsonValue: {
+                                            ..._jsonValue,
+                                            placeholder: singlePlaceholder
+                                                ? jsonValue[0].placeholder
+                                                : _jsonValue.placeholder,
+                                        },
+                                        singlePlaceholder,
+                                        ...configExistQuickPickParams,
+                                    })
+                            );
+
+                            promises.reduce(async (acc, cur) => {
+                                return acc.then(async () => await cur());
+                            }, Promise.resolve());
+
+                            resolve(true);
+                        } else {
+                            //2. 그 외 = config value는 단일 생성으로 되어있을 경우(x 배열)
+                            generateConfigBasedStructure({
+                                label,
+                                jsonValue,
+                                ...configExistQuickPickParams,
+                            });
+
+                            resolve(true);
+                        }
+                    } catch (err) {
+                        showMessage({ type: 'error', message: '😭 failed to create structure' });
+                        reject(false);
                     }
+                });
 
-                    // showTimedMessage({ message: `🎉 success to create ${label} structure` });
-                } catch (err) {
-                    showMessage({ type: 'error', message: '😭 failed to create structure' });
+                if (isSucceessToCreate === true) {
+                    showTimedMessage({ message: `🎉 success to create ${label} structure` });
                 }
             },
         })
@@ -78,10 +113,11 @@ export async function configExistQuickPick(configExistQuickPickParams: ConfigExi
 interface GenerateConfigBasedStructureParams extends ConfigExistQuickPickParams {
     label: string;
     jsonValue: ASFGJsonValue;
+    singlePlaceholder?: Map<string, string>;
 }
 const generateConfigBasedStructure = async (generateConfigBasedStructureParams: GenerateConfigBasedStructureParams) => {
     const {
-        resourceControl: { isResourceExist, createFolder, copyResource, getPath },
+        resourceControl: { isResourceExist, copyResource, getPath },
         messageControl: { showMessage },
         workspaceFolder,
         commandHandlerArgs,
@@ -89,7 +125,7 @@ const generateConfigBasedStructure = async (generateConfigBasedStructureParams: 
         label,
         jsonValue,
     } = generateConfigBasedStructureParams;
-    const { source, destination, placeholder } = jsonValue;
+    let { source, destination, placeholder } = jsonValue;
 
     // exception 0. json의 형태가 잘못되어 있을 경우
     if (!source || !destination) {
@@ -134,6 +170,7 @@ async function handlePlaceholder(handlePlaceholderParams: HandlePlaceholderParam
     const {
         placeholder,
         messageControl: { showMessage },
+        singlePlaceholder,
     } = handlePlaceholderParams;
 
     if (!Array.isArray(placeholder)) {
@@ -144,7 +181,7 @@ async function handlePlaceholder(handlePlaceholderParams: HandlePlaceholderParam
     }
 
     //1. 사용자의 입력을 받아온다
-    const inputMap = await showInputBoxes(placeholder);
+    const inputMap = singlePlaceholder ? new Map(singlePlaceholder) : await showInputBoxes(placeholder);
     changePlaceholderRecursively({ ...handlePlaceholderParams, inputMap });
 }
 
@@ -233,7 +270,6 @@ async function changePlaceholderRecursively(changePlaceholderRecursivelyParams: 
             } else {
                 // 파일일 경우, 파일 이름을 확인해서 해당되면 파일 이름 및 내부 내용의 placeholder을 변경 후 write한다.
                 // 컨텐츠가 바뀔 경우는 이름확장자 필요하고, 아닐 경우는 그냥 이름만 placeholder 바꾼다.
-
                 const targetFileNameRegex = /^.+\.([^\.]+)\.txt$/;
                 const data = readFile(resourcePath);
 
