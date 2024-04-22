@@ -1,0 +1,5 @@
+console.log("placeholder test");
+
+function ${{place1}} (){
+    console.log("function name should be changed");
+}

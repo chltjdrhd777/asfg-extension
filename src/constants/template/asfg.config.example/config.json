@@ -6,15 +6,20 @@
     "multiGeneration": [
         {
             "source": "./multiGenerationExample/components",
-            "destination": "../components"
+            "destination": "../exampleComponents"
         },
         {
-            "source": "./multiGenerationExample/types",
-            "destination": "../types/depth1"
+            "source": "./multiGenerationExample/hooks",
+            "destination": "../exampleHooks/depth1"
         },
         {
             "source": "./multiGenerationExample/utils",
-            "destination": "../utils/depth1/depth2"
+            "destination": "../exampleUtils/depth1/depth2"
         }
-    ]
+    ],
+    "placeholderGeneration": {
+        "source": "./placeholderGenerationExample",
+        "destination": "../examplePlaceholder",
+        "placeholder": ["${{place1}}", "${{place2}}"]
+    }
 }
